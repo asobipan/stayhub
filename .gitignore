@@ -41,7 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
-CLAUDE.md
-AGENTS.md
-PLAN.md
-*.stackdump
+.claude/
+bash.exe.stackdump

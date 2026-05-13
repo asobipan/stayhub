@@ -24,28 +24,53 @@ interface UserMenuProps {
 
 export function UserMenu({ user, signOutAction }: UserMenuProps) {
   const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "?";
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-2 rounded-full border border-border hover:shadow-md transition-shadow bg-white outline-none">
-        <Menu className="w-4 h-4 text-foreground/80" />
-        <Avatar className="w-7 h-7">
+      <DropdownMenuTrigger
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border outline-none transition-all duration-150"
+        style={{ borderColor: "#E7E5E0", background: "#fff" }}
+      >
+        <Menu className="w-3.5 h-3.5" style={{ color: "#44403C" }} />
+        <Avatar className="w-6 h-6">
           <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? "User"} />
-          <AvatarFallback className="text-xs bg-primary text-white">
+          <AvatarFallback
+            className="text-xs font-medium"
+            style={{ background: "#1E1B4B", color: "#fff" }}
+          >
             {initials}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 mt-1">
+
+      <DropdownMenuContent
+        align="end"
+        className="w-52 mt-1.5 p-1 shadow-lg border rounded-md"
+        style={{ borderColor: "#E7E5E0", background: "#fff" }}
+      >
         {user ? (
           <>
-            <div className="px-2 py-1.5">
-              <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            <div
+              className="px-3 py-2 mb-1 rounded-sm"
+              style={{ background: "#F5F4F0" }}
+            >
+              <p
+                className="text-xs font-semibold truncate"
+                style={{ color: "#1C1917", fontFamily: "var(--font-heading)" }}
+              >
+                {user.name}
+              </p>
+              <p className="text-xs truncate mt-0.5" style={{ color: "#78716C" }}>
+                {user.email}
+              </p>
             </div>
-            <DropdownMenuSeparator />
             <DropdownMenuItem render={<Link href="/bookings" />}>
               Мої бронювання
             </DropdownMenuItem>
@@ -59,9 +84,10 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
                 Адмін панель
               </DropdownMenuItem>
             )}
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator style={{ background: "#F0EFE9" }} />
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive cursor-pointer"
+              className="cursor-pointer"
+              style={{ color: "#DC2626" }}
               onSelect={() => signOutAction()}
             >
               Вийти
@@ -69,17 +95,19 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
           </>
         ) : (
           <>
-            <DropdownMenuItem render={<Link href="/login" />} className="font-medium">
+            <DropdownMenuItem
+              render={<Link href="/login" />}
+              className="font-medium"
+            >
               Увійти
             </DropdownMenuItem>
             <DropdownMenuItem render={<Link href="/login" />}>
-              Зареєструватися
+              Зареєструватись
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator style={{ background: "#F0EFE9" }} />
             <DropdownMenuItem render={<Link href="/dashboard/listings/new" />}>
               Здати житло
             </DropdownMenuItem>
-            <DropdownMenuItem>Допомога</DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>
