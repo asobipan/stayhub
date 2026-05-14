@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { getListings } from "@/lib/listings";
 
 export async function GET(req: NextRequest) {
@@ -15,4 +17,40 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json(result);
+}
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (session.user.role !== "HOST" && session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const body = await req.json();
+  const { title, description, address, city, country, price, bedrooms, bathrooms, maxGuests, amenities, images } = body;
+
+  if (!title || !description || !address || !city || !country || !price || !bedrooms || !bathrooms || !maxGuests) {
+    return NextResponse.json({ error: "Відсутні обов'язкові поля" }, { status: 400 });
+  }
+
+  const listing = await db.listing.create({
+    data: {
+      title,
+      description,
+      address,
+      city,
+      country,
+      price: parseFloat(price),
+      bedrooms: parseInt(bedrooms),
+      bathrooms: parseInt(bathrooms),
+      maxGuests: parseInt(maxGuests),
+      amenities: amenities ?? [],
+      images: images ?? [],
+      hostId: session.user.id,
+    },
+  });
+
+  return NextResponse.json(listing, { status: 201 });
 }

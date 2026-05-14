@@ -44,15 +44,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   pages: {
     signIn: "/login",
   },
   callbacks: {
-    session({ session, user }) {
-      session.user.id = user.id;
-      session.user.role = user.role;
+    async jwt({ token, user, trigger }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role?: string }).role ?? "GUEST";
+      }
+      // Refresh role from DB on session update
+      if (trigger === "update" || !token.role) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        token.role = dbUser?.role ?? "GUEST";
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user.id = token.id as string;
+      session.user.role = token.role as string;
       return session;
     },
   },
