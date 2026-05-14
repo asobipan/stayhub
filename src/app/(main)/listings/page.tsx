@@ -1,76 +1,12 @@
 import { Suspense } from "react";
-import { db } from "@/lib/db";
+import { getListings, type ListingsQuery } from "@/lib/listings";
 import { ListingGrid } from "@/components/listings/ListingGrid";
 import { ListingGridSkeleton } from "@/components/listings/ListingCardSkeleton";
 import { SearchFilters } from "@/components/listings/SearchFilters";
 import { PaginationControls } from "@/components/listings/PaginationControls";
 
-interface SearchParams {
-  city?: string;
-  checkIn?: string;
-  checkOut?: string;
-  guests?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  page?: string;
-}
-
-async function ListingsResult({ searchParams }: { searchParams: SearchParams }) {
-  const page = Math.max(1, parseInt(searchParams.page ?? "1"));
-  const limit = 12;
-  const skip = (page - 1) * limit;
-
-  const checkInDate = searchParams.checkIn ? new Date(searchParams.checkIn) : undefined;
-  const checkOutDate = searchParams.checkOut ? new Date(searchParams.checkOut) : undefined;
-
-  let excludedListingIds: string[] = [];
-  if (checkInDate && checkOutDate) {
-    const conflicting = await db.booking.findMany({
-      where: {
-        status: { in: ["PENDING", "CONFIRMED"] },
-        checkIn: { lt: checkOutDate },
-        checkOut: { gt: checkInDate },
-      },
-      select: { listingId: true },
-    });
-    excludedListingIds = conflicting.map((b) => b.listingId);
-  }
-
-  const where = {
-    isActive: true,
-    ...(searchParams.city && {
-      city: { contains: searchParams.city, mode: "insensitive" as const },
-    }),
-    ...(searchParams.guests && { maxGuests: { gte: parseInt(searchParams.guests) } }),
-    ...(searchParams.minPrice && { price: { gte: parseFloat(searchParams.minPrice) } }),
-    ...(searchParams.maxPrice && { price: { lte: parseFloat(searchParams.maxPrice) } }),
-    ...(excludedListingIds.length > 0 && { id: { notIn: excludedListingIds } }),
-  };
-
-  const [listings, total] = await Promise.all([
-    db.listing.findMany({
-      where,
-      orderBy: [{ avgRating: "desc" }, { createdAt: "desc" }],
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        title: true,
-        city: true,
-        country: true,
-        price: true,
-        images: true,
-        bedrooms: true,
-        bathrooms: true,
-        maxGuests: true,
-        avgRating: true,
-        reviewCount: true,
-      },
-    }),
-    db.listing.count({ where }),
-  ]);
-
-  const pages = Math.ceil(total / limit);
+async function ListingsResult({ searchParams }: { searchParams: ListingsQuery }) {
+  const { listings, total, pages, page } = await getListings(searchParams);
 
   return (
     <>
@@ -102,7 +38,7 @@ async function ListingsResult({ searchParams }: { searchParams: SearchParams }) 
 export default async function ListingsPage({
   searchParams,
 }: {
-  searchParams: Promise<SearchParams>;
+  searchParams: Promise<ListingsQuery>;
 }) {
   const params = await searchParams;
 

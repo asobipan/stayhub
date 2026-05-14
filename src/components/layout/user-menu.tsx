@@ -104,10 +104,6 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
             <DropdownMenuItem render={<Link href="/login" />}>
               Зареєструватись
             </DropdownMenuItem>
-            <DropdownMenuSeparator style={{ background: "#F0EFE9" }} />
-            <DropdownMenuItem render={<Link href="/dashboard/listings/new" />}>
-              Здати житло
-            </DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>

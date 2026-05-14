@@ -102,6 +102,46 @@
   --sidebar-ring: oklch(0.55 0.18 285);
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.anim-fade-up  { animation: fadeUp 0.9s cubic-bezier(.22,1,.36,1) both; }
+.anim-fade-in  { animation: fadeIn 1.2s ease both; }
+.delay-1 { animation-delay: .12s; }
+.delay-2 { animation-delay: .24s; }
+.delay-3 { animation-delay: .38s; }
+.delay-4 { animation-delay: .52s; }
+.delay-5 { animation-delay: .66s; }
+.marquee-track { animation: marquee 28s linear infinite; }
+
+.listing-card:hover .listing-img { transform: scale(1.06); }
+.listing-img { transition: transform 0.6s cubic-bezier(.22,1,.36,1); }
+
+.city-pill { transition: background 0.2s, color 0.2s; }
+.city-pill:hover { background: #1E1B4B; color: #F59E0B; }
+.city-pill:hover .city-pill-tag { color: rgba(245,158,11,0.7); }
+
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+.hero-rule { width: 48px; height: 1px; background: #F59E0B; display: inline-block; }
+.section-eyebrow {
+  font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: #A8A29E; font-family: var(--font-sans);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
