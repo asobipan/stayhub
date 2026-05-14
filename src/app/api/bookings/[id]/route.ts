@@ -26,7 +26,17 @@ export async function PATCH(
   if (!booking) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (booking.listing.hostId !== session.user.id && session.user.role !== "ADMIN") {
+
+  const isHost = booking.listing.hostId === session.user.id;
+  const isGuest = booking.guestId === session.user.id;
+  const isAdmin = session.user.role === "ADMIN";
+
+  // Guest can only cancel their own PENDING bookings
+  if (isGuest && status === "CANCELLED" && booking.status === "PENDING") {
+    // allowed
+  } else if (isHost || isAdmin) {
+    // allowed
+  } else {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
