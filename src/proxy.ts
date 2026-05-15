@@ -9,6 +9,10 @@ export default auth((req: NextAuthRequest) => {
   const isLoggedIn = !!session?.user;
   const role = session?.user?.role;
 
+  if (pathname === "/login" && isLoggedIn) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   if (pathname.startsWith("/admin")) {
     if (!isLoggedIn || role !== "ADMIN") {
       return NextResponse.redirect(new URL("/login", req.url));
@@ -31,5 +35,5 @@ export default auth((req: NextAuthRequest) => {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/bookings/:path*", "/admin/:path*"],
+  matcher: ["/login", "/dashboard/:path*", "/bookings/:path*", "/admin/:path*"],
 };

@@ -5,7 +5,7 @@ import { UserMenu } from "./user-menu";
 
 async function SignOutAction() {
   "use server";
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirect: false });
 }
 
 export async function Header() {

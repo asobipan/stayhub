@@ -86,12 +86,19 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
             )}
             <DropdownMenuSeparator style={{ background: "#F0EFE9" }} />
             <DropdownMenuItem
-              className="cursor-pointer"
-              style={{ color: "#DC2626" }}
-              onSelect={() => signOutAction()}
-            >
-              Вийти
-            </DropdownMenuItem>
+              render={
+                <form
+                  action={async () => {
+                    await signOutAction();
+                    window.location.href = "/";
+                  }}
+                >
+                  <button type="submit" className="w-full text-left" style={{ color: "#DC2626" }}>
+                    Вийти
+                  </button>
+                </form>
+              }
+            />
           </>
         ) : (
           <>
