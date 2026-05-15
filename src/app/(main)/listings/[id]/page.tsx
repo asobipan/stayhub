@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { ImageGallery } from "@/components/listings/ImageGallery";
 import { AmenitiesList } from "@/components/listings/AmenitiesList";
 import { BookingWidget } from "@/components/listings/BookingWidget";
+import { LeaveReviewButton } from "@/components/reviews/LeaveReviewButton";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -56,6 +57,20 @@ export default async function ListingDetailPage({ params }: Props) {
 
   const isOwner = session?.user?.id === listing.hostId;
   const isAuthenticated = !!session?.user;
+
+  // Check if current user has a COMPLETED booking without a review
+  let completedBookingWithoutReview: { id: string } | null = null;
+  if (session?.user?.id && !isOwner) {
+    completedBookingWithoutReview = await db.booking.findFirst({
+      where: {
+        listingId: id,
+        guestId: session.user.id,
+        status: "COMPLETED",
+        review: null,
+      },
+      select: { id: true },
+    });
+  }
 
   const memberSince = new Date(listing.host.createdAt).getFullYear();
 
@@ -193,18 +208,27 @@ export default async function ListingDetailPage({ params }: Props) {
           </div>
 
           {/* Reviews */}
-          {listing.reviews.length > 0 && (
-            <div className="pt-8 border-t" style={{ borderColor: "#F0EDE6" }}>
-              <div className="flex items-center gap-3 mb-6">
+          <div className="pt-8 border-t" style={{ borderColor: "#F0EDE6" }}>
+            <div className="flex items-center justify-between gap-3 mb-6">
+              <div className="flex items-center gap-3">
                 <Star className="w-5 h-5" style={{ fill: "#F59E0B", color: "#F59E0B" }} />
                 <h2
                   className="text-xl font-semibold"
                   style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
                 >
-                  {listing.avgRating.toFixed(1)} · {listing.reviewCount}{" "}
-                  {listing.reviewCount === 1 ? "відгук" : listing.reviewCount < 5 ? "відгуки" : "відгуків"}
+                  {listing.reviewCount > 0
+                    ? `${listing.avgRating.toFixed(1)} · ${listing.reviewCount} ${listing.reviewCount === 1 ? "відгук" : listing.reviewCount < 5 ? "відгуки" : "відгуків"}`
+                    : "Відгуки"}
                 </h2>
               </div>
+              {completedBookingWithoutReview && (
+                <LeaveReviewButton
+                  bookingId={completedBookingWithoutReview.id}
+                  listingTitle={listing.title}
+                />
+              )}
+            </div>
+            {listing.reviews.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {listing.reviews.map((review) => (
                   <div key={review.id}>
@@ -249,8 +273,8 @@ export default async function ListingDetailPage({ params }: Props) {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Booking widget */}
