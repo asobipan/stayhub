@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, bio, phone } = await req.json();
+  const { name, bio, phone, image } = await req.json();
 
   if (name !== undefined && (typeof name !== "string" || !name.trim())) {
     return NextResponse.json({ error: "Ім'я не може бути порожнім" }, { status: 400 });
@@ -36,6 +36,7 @@ export async function PATCH(req: NextRequest) {
       ...(name  !== undefined && { name:  name.trim()  }),
       ...(bio   !== undefined && { bio:   bio.trim()   }),
       ...(phone !== undefined && { phone: phone.trim() }),
+      ...(image !== undefined && { image }),
     },
     select: { id: true, name: true, email: true, image: true, bio: true, phone: true, role: true },
   });

@@ -11,6 +11,16 @@ const AMENITIES = [
   "Тренажерний зал", "Ліфт", "Домашні тварини", "Дитяче ліжко", "Сейф",
 ];
 
+const PROPERTY_TYPES = [
+  { id: "apartment",  label: "Апартаменти" },
+  { id: "villa",      label: "Вілла" },
+  { id: "loft",       label: "Лофт" },
+  { id: "cabin",      label: "Будиночок" },
+  { id: "studio",     label: "Студія" },
+  { id: "penthouse",  label: "Пентхаус" },
+  { id: "boutique",   label: "Бутік-готель" },
+];
+
 interface ListingFormProps {
   mode: "new" | "edit";
   listingId?: string;
@@ -26,6 +36,7 @@ interface ListingFormProps {
     maxGuests: number;
     amenities: string[];
     images: string[];
+    propertyType?: string | null;
   };
 }
 
@@ -50,6 +61,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
     maxGuests: initial?.maxGuests?.toString() ?? "2",
     amenities: initial?.amenities ?? [] as string[],
     images: initial?.images ?? [] as string[],
+    propertyType: initial?.propertyType ?? "",
   });
 
   function set(field: string, value: string | string[]) {
@@ -114,7 +126,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
   }
 
   function canAdvance() {
-    if (step === 0) return form.title && form.description && form.address && form.city && form.country;
+    if (step === 0) return form.title && form.propertyType && form.description && form.address && form.city && form.country;
     if (step === 1) return form.price && form.bedrooms && form.bathrooms && form.maxGuests;
     return true;
   }
@@ -163,6 +175,28 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
               placeholder="Напр. Затишна квартира в центрі Львова"
               className={inputCls}
             />
+          </Field>
+          <Field label="Тип помешкання *" required>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {PROPERTY_TYPES.map((t) => {
+                const selected = form.propertyType === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => set("propertyType", selected ? "" : t.id)}
+                    className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+                    style={{
+                      background: selected ? "var(--ink)" : "var(--bg-alt)",
+                      color: selected ? "var(--accent-ink)" : "var(--ink-2)",
+                      border: selected ? "1px solid var(--ink)" : "1px solid var(--line)",
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
           </Field>
           <Field label="Опис *" required>
             <textarea
@@ -330,6 +364,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
             Перевірте дані
           </h3>
           <Summary label="Назва" value={form.title} />
+          <Summary label="Тип" value={PROPERTY_TYPES.find(t => t.id === form.propertyType)?.label ?? "—"} />
           <Summary label="Адреса" value={`${form.address}, ${form.city}, ${form.country}`} />
           <Summary label="Ціна" value={`$${form.price} / ніч`} />
           <Summary label="Кімнат" value={form.bedrooms} />

@@ -11,7 +11,7 @@ import { db } from "@/lib/db";
 
 async function ListingsResult({ searchParams }: { searchParams: ListingsQuery }) {
   const [{ listings, total, pages, page }, session] = await Promise.all([
-    getListings(searchParams),
+    getListings({ ...searchParams, type: searchParams.type }),
     auth(),
   ]);
 

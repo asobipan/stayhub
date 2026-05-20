@@ -1,25 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   GridIcon, AptIcon, VillaIcon, LoftIcon,
   CabinIcon, StudioIcon, PentIcon, BoutiqueIcon, SlidersIcon,
 } from "@/components/ui/icons";
 
 const CATEGORIES = [
-  { id: "all",       label: "Всі",          icon: <GridIcon /> },
-  { id: "apartment", label: "Апартаменти",  icon: <AptIcon /> },
-  { id: "villa",     label: "Вілли",        icon: <VillaIcon /> },
-  { id: "loft",      label: "Лофти",        icon: <LoftIcon /> },
-  { id: "cabin",     label: "Будиночки",    icon: <CabinIcon /> },
-  { id: "studio",    label: "Студії",       icon: <StudioIcon /> },
-  { id: "penthouse", label: "Пентхауси",    icon: <PentIcon /> },
-  { id: "boutique",  label: "Бутік-готелі", icon: <BoutiqueIcon /> },
+  { id: "all",        label: "Всі",          icon: <GridIcon /> },
+  { id: "apartment",  label: "Апартаменти",  icon: <AptIcon /> },
+  { id: "villa",      label: "Вілли",        icon: <VillaIcon /> },
+  { id: "loft",       label: "Лофти",        icon: <LoftIcon /> },
+  { id: "cabin",      label: "Будиночки",    icon: <CabinIcon /> },
+  { id: "studio",     label: "Студії",       icon: <StudioIcon /> },
+  { id: "penthouse",  label: "Пентхауси",    icon: <PentIcon /> },
+  { id: "boutique",   label: "Бутік-готелі", icon: <BoutiqueIcon /> },
 ];
 
 export function CategoryTabs() {
-  const [active, setActive] = useState("all");
+  const searchParams = useSearchParams();
+  const active = searchParams.get("type") ?? "all";
+
+  function hrefFor(id: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (id === "all") {
+      params.delete("type");
+    } else {
+      params.set("type", id);
+    }
+    params.delete("page");
+    const qs = params.toString();
+    return qs ? `/listings?${qs}` : "/listings";
+  }
 
   return (
     <section className="border-t border-b border-[var(--line)] bg-[var(--background)]">
@@ -28,8 +41,7 @@ export function CategoryTabs() {
           {CATEGORIES.map((c) => (
             <Link
               key={c.id}
-              href={c.id === "all" ? "/listings" : `/listings?type=${c.id}`}
-              onClick={() => setActive(c.id)}
+              href={hrefFor(c.id)}
               className={[
                 "flex flex-col items-center gap-1.5 px-4 py-2.5 min-w-[76px] text-[11px] font-medium shrink-0 transition-colors border-b-2",
                 active === c.id

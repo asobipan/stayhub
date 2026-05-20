@@ -67,7 +67,7 @@ model VerificationToken {
 }
 
 model Listing {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
   description String
   address     String
@@ -81,11 +81,14 @@ model Listing {
   bathrooms   Int
   maxGuests   Int
   amenities   String[]
-  avgRating   Float    @default(0)
-  reviewCount Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  avgRating   Float         @default(0)
+  reviewCount Int           @default(0)
+  propertyType   String?
+  isActive    Boolean       @default(false)
+  status      ListingStatus @default(PENDING)
+  rejectedReason String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   hostId        String
   host          User           @relation(fields: [hostId], references: [id], onDelete: Cascade)
@@ -171,4 +174,11 @@ enum PaymentStatus {
   PAID
   REFUNDED
   FAILED
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  REJECTED
 }

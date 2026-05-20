@@ -5,10 +5,10 @@ import { useTransition } from "react";
 import { SearchIcon } from "@/components/ui/icons";
 
 const filterParsers = {
-  city:     parseAsString.withDefault(""),
-  checkIn:  parseAsString.withDefault(""),
+  city: parseAsString.withDefault(""),
+  checkIn: parseAsString.withDefault(""),
   checkOut: parseAsString.withDefault(""),
-  guests:   parseAsInteger.withDefault(0),
+  guests: parseAsInteger.withDefault(0),
   minPrice: parseAsInteger.withDefault(0),
   maxPrice: parseAsInteger.withDefault(0),
 };
@@ -21,16 +21,24 @@ export function SearchFilters() {
   const [isPending, startTransition] = useTransition();
 
   function applyFilters() {
-    startTransition(() => { setFilters({ ...filters }); });
+    startTransition(() => {
+      setFilters({ ...filters });
+    });
   }
 
   function clearFilters() {
-    startTransition(() => { setFilters(null); });
+    startTransition(() => {
+      setFilters(null);
+    });
   }
 
   const hasFilters =
-    filters.city || filters.checkIn || filters.checkOut ||
-    filters.guests > 0 || filters.minPrice > 0 || filters.maxPrice > 0;
+    filters.city ||
+    filters.checkIn ||
+    filters.checkOut ||
+    filters.guests > 0 ||
+    filters.minPrice > 0 ||
+    filters.maxPrice > 0;
 
   return (
     <div className="flex items-center gap-0 bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
@@ -50,8 +58,16 @@ export function SearchFilters() {
             onClick={() => setFilters({ city: null })}
             className="text-[var(--sh-muted)] hover:text-[var(--ink)] transition-colors"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         )}
@@ -59,14 +75,21 @@ export function SearchFilters() {
 
       {/* Dates */}
       <div className="hidden md:flex items-center gap-2 px-5 py-3 border-r border-[var(--line)]">
-        <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] sr-only">Заїзд</label>
+        <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] sr-only">
+          Заїзд
+        </label>
         <input
           type="date"
           value={filters.checkIn}
-          onChange={(e) => setFilters({
-            checkIn: e.target.value || null,
-            checkOut: filters.checkOut && e.target.value >= filters.checkOut ? null : filters.checkOut || null,
-          })}
+          onChange={(e) =>
+            setFilters({
+              checkIn: e.target.value || null,
+              checkOut:
+                filters.checkOut && e.target.value >= filters.checkOut
+                  ? null
+                  : filters.checkOut || null,
+            })
+          }
           className="text-[13px] text-[var(--ink)] bg-transparent outline-none cursor-pointer"
         />
         <span className="text-[var(--line-2)]">→</span>
@@ -84,7 +107,11 @@ export function SearchFilters() {
         <input
           type="number"
           value={filters.guests || ""}
-          onChange={(e) => setFilters({ guests: e.target.value ? parseInt(e.target.value) : null })}
+          onChange={(e) =>
+            setFilters({
+              guests: e.target.value ? parseInt(e.target.value) : null,
+            })
+          }
           placeholder="Гості"
           min="1"
           className="w-16 text-[13px] text-[var(--ink)] bg-transparent outline-none placeholder:text-[var(--sh-muted)]"

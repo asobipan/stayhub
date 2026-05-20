@@ -144,7 +144,7 @@ export default async function ListingDetailPage({ params }: Props) {
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
                   <StarFillIcon size={14} className="text-[var(--accent)]" />
                   <strong style={{ color: "var(--ink)" }}>{listing.avgRating.toFixed(2)}</strong>
-                  <span style={{ color: "var(--muted)" }}>· {listing.reviewCount} відгуків</span>
+                  <span style={{ color: "var(--ink-2)" }}>· {listing.reviewCount} відгуків</span>
                 </span>
                 <span className="sh-muted">·</span>
               </>

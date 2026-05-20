@@ -2,9 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { ListingToggle } from "@/components/dashboard/ListingToggle";
 import { ListingDelete } from "@/components/dashboard/ListingDelete";
 import { PlusIcon, ArrowURIcon, StarFillIcon } from "@/components/ui/icons";
+import type { ListingStatus } from "@prisma/client";
+
+const STATUS_CONFIG: Record<ListingStatus, { label: string; bg: string; color: string }> = {
+  DRAFT:    { label: "Чернетка",    bg: "var(--bg-alt)",     color: "var(--ink-2)"  },
+  PENDING:  { label: "На розгляді", bg: "oklch(0.95 0.06 80)", color: "oklch(0.5 0.12 60)" },
+  ACTIVE:   { label: "Активне",     bg: "oklch(0.94 0.06 145)", color: "oklch(0.4 0.12 145)" },
+  REJECTED: { label: "Відхилено",   bg: "oklch(0.95 0.05 20)", color: "oklch(0.5 0.15 20)" },
+};
 
 export default async function DashboardListingsPage() {
   const session = await auth();
@@ -20,6 +27,8 @@ export default async function DashboardListingsPage() {
       country: true,
       price: true,
       isActive: true,
+      status: true,
+      rejectedReason: true,
       avgRating: true,
       reviewCount: true,
       _count: { select: { bookings: true } },
@@ -129,7 +138,22 @@ export default async function DashboardListingsPage() {
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <ListingToggle id={listing.id} isActive={listing.isActive} />
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className="inline-flex items-center px-2.5 py-1 rounded-full font-mono text-[10px] uppercase tracking-wider w-fit"
+                        style={{
+                          background: STATUS_CONFIG[listing.status].bg,
+                          color: STATUS_CONFIG[listing.status].color,
+                        }}
+                      >
+                        {STATUS_CONFIG[listing.status].label}
+                      </span>
+                      {listing.status === "REJECTED" && listing.rejectedReason && (
+                        <span className="text-[11px] max-w-[160px] line-clamp-2" style={{ color: "var(--sh-muted)" }}>
+                          {listing.rejectedReason}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1">

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 
 export interface ListingsQuery {
   city?: string;
+  type?: string;
   checkIn?: string;
   checkOut?: string;
   guests?: string;
@@ -44,6 +45,7 @@ export async function getListings(query: ListingsQuery) {
 
   const where = {
     isActive: true,
+    ...(query.type && query.type !== "all" && { propertyType: query.type }),
     ...(query.city && {
       OR: [
         { city: { contains: query.city, mode: "insensitive" as const } },

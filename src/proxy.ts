@@ -20,7 +20,7 @@ export default auth((req: NextAuthRequest) => {
   }
 
   if (pathname.startsWith("/dashboard")) {
-    if (!isLoggedIn || (role !== "HOST" && role !== "ADMIN")) {
+    if (!isLoggedIn) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }

@@ -74,8 +74,34 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
   const [phone, setPhone] = useState(profile.phone ?? "");
   const [loading, setLoading] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
 
   function markDirty() { if (!dirty) setDirty(true); }
+
+  async function uploadAvatar(file: File) {
+    setAvatarLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) { toast.error(uploadData.error ?? "Помилка завантаження"); return; }
+
+      const patchRes = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: uploadData.url }),
+      });
+      if (!patchRes.ok) { toast.error("Не вдалося зберегти фото"); return; }
+
+      toast.success("Фото профілю оновлено");
+      router.refresh();
+    } catch {
+      toast.error("Помилка мережі");
+    } finally {
+      setAvatarLoading(false);
+    }
+  }
 
   async function save() {
     if (!name.trim()) { toast.error("Ім'я не може бути порожнім"); return; }
@@ -102,11 +128,11 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
 
       {/* ── Hero banner ───────────────────────────────── */}
       <div
-        className="relative overflow-hidden"
+        className="relative"
         style={{
           background: "var(--ink)",
           height: 220,
@@ -133,10 +159,35 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
           style={{ width: 260, height: 260, background: "var(--accent)" }}
         />
 
-        <div className="sh-container relative flex items-end h-full pb-0">
-          <div className="flex items-end gap-5 translate-y-12">
-            <Avatar name={profile.name} image={profile.image} size={96} />
-            <div className="pb-2" style={{ color: "var(--accent-ink)" }}>
+        <div className="sh-container relative h-full">
+          {/* Avatar + name row — внизу банера */}
+          <div className="flex items-end h-full gap-5 pb-5">
+            <div className="relative flex-shrink-0">
+              <Avatar name={profile.name} image={profile.image} size={80} />
+              <label
+                className="absolute inset-0 rounded-full flex items-center justify-center cursor-pointer transition-opacity"
+                style={{
+                  background: "rgba(0,0,0,0.45)",
+                  opacity: avatarLoading ? 1 : 0,
+                  color: "#fff",
+                  fontSize: 10,
+                  fontFamily: "var(--font-mono)",
+                  letterSpacing: "0.05em",
+                }}
+                onMouseEnter={(e) => { if (!avatarLoading) e.currentTarget.style.opacity = "1"; }}
+                onMouseLeave={(e) => { if (!avatarLoading) e.currentTarget.style.opacity = "0"; }}
+              >
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); e.target.value = ""; }}
+                  disabled={avatarLoading}
+                />
+                {avatarLoading ? "..." : "Змінити"}
+              </label>
+            </div>
+            <div style={{ color: "var(--accent-ink)" }}>
               <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-1">
                 {ROLE_LABEL[profile.role]} · з {fmtDate(profile.createdAt)}
               </p>
@@ -152,7 +203,7 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
       </div>
 
       {/* ── Main content ──────────────────────────────── */}
-      <div className="sh-container pt-20 pb-20">
+      <div className="sh-container pt-8 pb-20">
         <div className="grid gap-8" style={{ gridTemplateColumns: "1fr 340px" }}>
 
           {/* Left: edit form */}

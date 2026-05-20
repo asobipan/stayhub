@@ -24,9 +24,6 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.user.role !== "HOST" && session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
 
   const body = await req.json();
   const { title, description, address, city, country, price, bedrooms, bathrooms, maxGuests, amenities, images } = body;
@@ -49,6 +46,8 @@ export async function POST(req: NextRequest) {
       amenities: amenities ?? [],
       images: images ?? [],
       hostId: session.user.id,
+      status: "PENDING",
+      isActive: false,
     },
   });
 

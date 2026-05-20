@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { UserMenu } from "./user-menu";
 import { HeaderCenter } from "./header-center";
 import { PlusIcon, GlobeIcon, HeartIcon } from "@/components/ui/icons";
@@ -11,7 +12,14 @@ async function SignOutAction() {
 
 export async function Header() {
   const session = await auth();
-  const user = session?.user;
+  const sessionUser = session?.user;
+
+  // Читаємо актуальне фото з БД — JWT кешує старе значення
+  const dbImage = sessionUser?.id
+    ? (await db.user.findUnique({ where: { id: sessionUser.id }, select: { image: true } }))?.image
+    : null;
+
+  const user = sessionUser ? { ...sessionUser, image: dbImage ?? sessionUser.image } : null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] backdrop-header bg-[color-mix(in_oklab,var(--background)_86%,transparent)]">
