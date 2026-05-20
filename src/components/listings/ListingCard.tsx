@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Star, MapPin } from "lucide-react";
+import { useState } from "react";
+import { HeartIcon, HeartFillIcon, StarFillIcon, PinIcon } from "@/components/ui/icons";
 
-interface ListingCardProps {
+export interface ListingCardProps {
   id: string;
   title: string;
   city: string;
@@ -10,113 +13,154 @@ interface ListingCardProps {
   price: number;
   images: string[];
   bedrooms: number;
-  bathrooms: number;
-  maxGuests: number;
+  bathrooms?: number;
+  maxGuests?: number;
   avgRating: number;
   reviewCount: number;
+  // editorial grid extras
+  index?: number;
+  layoutClass?: string;
+  aspectClass?: string;
+  superhost?: boolean;
+  instantBook?: boolean;
 }
 
 export function ListingCard({
-  id,
-  title,
-  city,
-  country,
-  price,
-  images,
-  bedrooms,
-  maxGuests,
-  avgRating,
-  reviewCount,
+  id, title, city, country, price, images,
+  bedrooms, avgRating, reviewCount,
+  index, layoutClass = "", aspectClass = "aspect-[4/3]", superhost, instantBook,
 }: ListingCardProps) {
-  const img = images[0] ?? null;
+  const [photoIdx, setPhotoIdx] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const photoCount = images.length;
+
+  const navPhoto = (e: React.MouseEvent, dir: number) => {
+    e.preventDefault();
+    setPhotoIdx((p) => (p + dir + photoCount) % photoCount);
+  };
+
+  const hue = ((index ?? 0) * 35) % 360;
 
   return (
     <Link
       href={`/listings/${id}`}
-      className="group block"
-      style={{ textDecoration: "none" }}
+      className={`group flex flex-col no-underline ${layoutClass}`}
     >
-      {/* Image container */}
-      <div
-        className="relative overflow-hidden rounded-xl mb-3"
-        style={{ aspectRatio: "4/3", background: "#F0EDE6" }}
-      >
-        {img ? (
+      {/* ── Media ─────────────────────────────────────────────── */}
+      <div className={`relative ${aspectClass} rounded-[14px] overflow-hidden bg-[var(--bg-alt)] mb-3 card-img-zoom`}>
+
+        {images[photoIdx] ? (
           <Image
-            src={img}
+            src={images[photoIdx]}
             alt={title}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg
-              viewBox="0 0 24 24"
-              className="w-10 h-10"
-              fill="none"
-              stroke="#C4BFBA"
-              strokeWidth="1.5"
-            >
-              <path d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z" />
-              <path d="M9 21V12h6v9" />
-            </svg>
-          </div>
+          <div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(135deg, oklch(0.62 0.08 ${hue}) 0%, oklch(0.45 0.08 ${hue + 20}) 100%)` }}
+          />
         )}
 
-        {/* Rating badge */}
-        {reviewCount > 0 && (
-          <div
-            className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full"
-            style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)" }}
-          >
-            <Star className="w-3 h-3" style={{ fill: "#F59E0B", color: "#F59E0B" }} />
-            <span className="text-xs font-semibold" style={{ color: "#1C1917" }}>
-              {avgRating.toFixed(1)}
+        {/* Top-left badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1 items-start z-10">
+          {superhost && (
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-[var(--ink)] text-[var(--sh-accent)] rounded-full text-[10.5px] font-semibold">
+              Superhost
             </span>
-          </div>
+          )}
+          {!superhost && instantBook && (
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-[var(--sh-accent)] text-[var(--accent-ink)] rounded-full text-[10.5px] font-semibold">
+              Миттєве
+            </span>
+          )}
+          {index != null && (
+            <span className="font-mono-sh text-[10px] tracking-[0.06em] px-2 py-0.5 bg-[color-mix(in_oklab,var(--surface)_90%,transparent)] backdrop-blur-md rounded-md text-[var(--ink)]">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+          )}
+        </div>
+
+        {/* Wishlist button */}
+        <button
+          onClick={(e) => { e.preventDefault(); setLiked((v) => !v); }}
+          aria-label="Зберегти"
+          className={[
+            "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110",
+            liked ? "bg-white text-[var(--sh-accent)]" : "bg-black/25 backdrop-blur-md text-white",
+          ].join(" ")}
+        >
+          {liked
+            ? <HeartFillIcon size={16} />
+            : <HeartIcon size={16} />
+          }
+        </button>
+
+        {/* Photo carousel nav */}
+        {photoCount > 1 && (
+          <>
+            <button
+              onClick={(e) => navPhoto(e, -1)}
+              aria-label="Попереднє фото"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[var(--surface)] text-[var(--ink)] flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 6l-6 6 6 6" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => navPhoto(e, +1)}
+              aria-label="Наступне фото"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[var(--surface)] text-[var(--ink)] flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+              {images.map((_, i) => (
+                <span
+                  key={i}
+                  className={[
+                    "block rounded-full transition-all",
+                    i === photoIdx ? "w-3.5 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/50",
+                  ].join(" ")}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 
-      {/* Info */}
-      <div>
-        <div className="flex items-start justify-between gap-2 mb-0.5">
-          <h3
-            className="text-sm font-semibold leading-snug line-clamp-1 flex-1"
-            style={{
-              fontFamily: "var(--font-heading)",
-              color: "#1C1917",
-            }}
-          >
+      {/* ── Body ──────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-1 px-0.5">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-serif text-[19px] font-normal leading-[1.15] tracking-[-0.01em] text-[var(--ink)] line-clamp-2 flex-1">
             {title}
           </h3>
+          {reviewCount > 0 && (
+            <span className="flex items-center gap-1 text-[13px] font-medium text-[var(--ink)] shrink-0 mt-0.5">
+              <StarFillIcon size={11} className="text-[var(--sh-accent)]" />
+              {avgRating.toFixed(2)}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-1 mb-1.5">
-          <MapPin className="w-3 h-3 shrink-0" style={{ color: "#A8A29E" }} />
-          <span className="text-xs" style={{ color: "#78716C" }}>
-            {city}, {country}
-          </span>
-        </div>
+        <p className="flex items-center gap-1 text-[12.5px] text-[var(--sh-muted)] truncate">
+          <PinIcon size={11} />
+          {city}, {country}
+          <span className="text-[9px]">·</span>
+          {bedrooms} {bedrooms === 1 ? "спальня" : "спальні"}
+        </p>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#A8A29E" }}>
-            <span>{bedrooms} кімн.</span>
-            <span>·</span>
-            <span>до {maxGuests} гостей</span>
-          </div>
-          <div>
-            <span
-              className="text-sm font-semibold"
-              style={{ color: "#1E1B4B", fontFamily: "var(--font-heading)" }}
-            >
-              ${price}
-            </span>
-            <span className="text-xs ml-0.5" style={{ color: "#A8A29E" }}>
-              /ніч
-            </span>
-          </div>
-        </div>
+        <p className="text-[14px] text-[var(--ink)] mt-1">
+          <span className="font-semibold">${price}</span>
+          <span className="text-[12.5px] text-[var(--sh-muted)]"> /ніч</span>
+        </p>
       </div>
     </Link>
   );

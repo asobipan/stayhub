@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { db } from "@/lib/db";
+import { CategoryTabs } from "@/components/listings/CategoryTabs";
+import { ListingCard } from "@/components/listings/ListingCard";
 
 /* ─── Data ──────────────────────────────────────────────────── */
 const CITIES = [
@@ -194,6 +196,9 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── CATEGORY TABS ─────────────────────────────────────── */}
+      <CategoryTabs />
+
       {/* ─── EDITORIAL LISTINGS ────────────────────────────────── */}
       {listings.length > 0 && (
         <section className="py-16 md:py-20 bg-[var(--background)]">
@@ -224,64 +229,14 @@ export default async function HomePage() {
             <div className="grid grid-cols-12-editorial gap-5">
               {listings.map((listing, i) => {
                 const { col, aspect } = editorialSlot(i);
-                const isHero = i % 8 === 0;
                 return (
-                  <Link
+                  <ListingCard
                     key={listing.id}
-                    href={`/listings/${listing.id}`}
-                    className={`${col} group flex flex-col no-underline`}
-                  >
-                    {/* Image */}
-                    <div className={`relative ${aspect} rounded-[14px] overflow-hidden bg-[var(--bg-alt)] mb-3 card-img-zoom`}>
-                      {listing.images[0] ? (
-                        <Image
-                          src={listing.images[0]}
-                          alt={listing.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div
-                          className="w-full h-full"
-                          style={{ background: `linear-gradient(135deg, oklch(0.62 0.08 ${(i * 35) % 360}) 0%, oklch(0.45 0.08 ${(i * 35 + 20) % 360}) 100%)` }}
-                        />
-                      )}
-                      {/* Index */}
-                      <span className="absolute top-3 left-3 font-mono-sh text-[10px] tracking-[0.06em] px-2 py-1 bg-[color-mix(in_oklab,var(--surface)_90%,transparent)] backdrop-blur-md rounded-md text-[var(--ink)]">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      {/* Rating */}
-                      {listing.reviewCount > 0 && (
-                        <span className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-full text-[12px] font-semibold text-[var(--ink)]">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--sh-accent)" stroke="none">
-                            <path d="M12 2l3 6.5 7 1-5 4.5 1.5 7L12 17l-6.5 4 1.5-7-5-4.5 7-1L12 2z"/>
-                          </svg>
-                          {listing.avgRating.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                    {/* Info */}
-                    <div className="flex items-start justify-between gap-2 px-0.5">
-                      <div className="min-w-0">
-                        <h3 className={`font-serif font-normal text-[var(--ink)] leading-[1.15] tracking-[-0.01em] mb-1 line-clamp-2 ${isHero ? "text-[22px]" : "text-[19px]"}`}>
-                          {listing.title}
-                        </h3>
-                        <p className="flex items-center gap-1.5 text-[12.5px] text-[var(--sh-muted)] truncate">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 22s-7-7-7-12a7 7 0 1114 0c0 5-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/>
-                          </svg>
-                          {listing.city}, {listing.country}
-                          <span className="text-[9px]">·</span>
-                          {listing.bedrooms} {listing.bedrooms === 1 ? "спальня" : "спальні"}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <span className="font-semibold text-[14px] text-[var(--ink)]">${listing.price}</span>
-                        <span className="text-[12.5px] text-[var(--sh-muted)]"> /ніч</span>
-                      </div>
-                    </div>
-                  </Link>
+                    {...listing}
+                    index={i}
+                    layoutClass={col}
+                    aspectClass={aspect}
+                  />
                 );
               })}
             </div>
