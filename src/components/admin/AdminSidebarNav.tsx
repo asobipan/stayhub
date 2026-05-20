@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Home, CalendarDays, ShieldCheck } from "lucide-react";
+import { ShieldIcon, UserIcon, HomeIcon, CalIcon, ArrowIcon } from "@/components/ui/icons";
 
-const links = [
-  { href: "/admin", label: "Огляд", icon: LayoutDashboard, exact: true },
-  { href: "/admin/users", label: "Користувачі", icon: Users },
-  { href: "/admin/listings", label: "Оголошення", icon: Home },
-  { href: "/admin/bookings", label: "Бронювання", icon: CalendarDays },
+const LINKS = [
+  { href: "/admin",          label: "Огляд",        Icon: ShieldIcon, exact: true },
+  { href: "/admin/users",    label: "Користувачі",  Icon: UserIcon },
+  { href: "/admin/listings", label: "Оголошення",   Icon: HomeIcon },
+  { href: "/admin/bookings", label: "Бронювання",   Icon: CalIcon },
 ];
 
 export function AdminSidebarNav() {
@@ -16,58 +16,63 @@ export function AdminSidebarNav() {
 
   return (
     <aside
-      className="hidden md:flex flex-col w-56 shrink-0 border-r min-h-screen py-8 px-4"
-      style={{ background: "#fff", borderColor: "#EEECE6" }}
+      className="hidden md:flex flex-col w-56 shrink-0 min-h-screen py-8 px-3"
+      style={{ background: "var(--surface)", borderRight: "1px solid var(--line)" }}
     >
-      <div className="flex items-center gap-2 mb-10 px-2">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 mb-10 px-3">
         <div
-          className="w-6 h-6 rounded-sm flex items-center justify-center"
-          style={{ background: "#1E1B4B" }}
+          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: "var(--ink)" }}
         >
-          <ShieldCheck className="w-3.5 h-3.5" style={{ color: "#F59E0B" }} />
+          <ShieldIcon size={13} className="text-[var(--accent-soft)]" />
         </div>
         <span
-          className="text-sm font-semibold"
-          style={{ fontFamily: "var(--font-heading)", color: "#1E1B4B", letterSpacing: "0.03em" }}
+          className="text-[15px] tracking-tight"
+          style={{ fontFamily: "var(--font-heading)", color: "var(--ink)", fontStyle: "italic" }}
         >
           Admin
         </span>
       </div>
 
-      <nav className="flex flex-col gap-1 flex-1">
-        {links.map(({ href, label, icon: Icon, exact }) => {
+      <p className="px-3 mb-2 font-mono text-[9.5px] uppercase tracking-widest" style={{ color: "var(--sh-muted)" }}>
+        Панель
+      </p>
+
+      <nav className="flex flex-col gap-0.5 flex-1">
+        {LINKS.map(({ href, label, Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13.5px] font-medium transition-colors"
               style={{
-                background: active ? "#1E1B4B" : "transparent",
-                color: active ? "#fff" : "#44403C",
+                background: active ? "var(--ink)" : "transparent",
+                color: active ? "var(--bg)" : "var(--ink-2)",
               }}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon size={15} />
               {label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-0.5">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors hover:bg-[#F5F4F0]"
-          style={{ color: "#A8A29E" }}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors hover:bg-[var(--bg-alt)]"
+          style={{ color: "var(--sh-muted)" }}
         >
-          ← Dashboard
+          <ArrowIcon size={11} className="rotate-180" /> Dashboard
         </Link>
         <Link
           href="/"
-          className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors hover:bg-[#F5F4F0]"
-          style={{ color: "#A8A29E" }}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors hover:bg-[var(--bg-alt)]"
+          style={{ color: "var(--sh-muted)" }}
         >
-          ← На сайт
+          <ArrowIcon size={11} className="rotate-180" /> На сайт
         </Link>
       </div>
     </aside>

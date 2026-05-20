@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { Users, Home, CalendarDays, DollarSign } from "lucide-react";
+import { UserIcon, HomeIcon, CalIcon } from "@/components/ui/icons";
 
 export default async function AdminPage() {
   const [userCount, listingCount, bookingCount, revenue] = await Promise.all([
@@ -12,70 +12,86 @@ export default async function AdminPage() {
   const stats = [
     {
       label: "Користувачів",
-      value: userCount,
-      icon: Users,
-      format: (v: number) => v.toString(),
+      value: userCount.toString(),
+      Icon: UserIcon,
     },
     {
       label: "Активних оголошень",
-      value: listingCount,
-      icon: Home,
-      format: (v: number) => v.toString(),
+      value: listingCount.toString(),
+      Icon: HomeIcon,
     },
     {
       label: "Бронювань",
-      value: bookingCount,
-      icon: CalendarDays,
-      format: (v: number) => v.toString(),
+      value: bookingCount.toString(),
+      Icon: CalIcon,
     },
     {
       label: "Виручка (USD)",
-      value: revenue._sum.amount ?? 0,
-      icon: DollarSign,
-      format: (v: number) => `$${v.toLocaleString("en-US", { minimumFractionDigits: 0 })}`,
+      value: `$${(revenue._sum.amount ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0 })}`,
+      Icon: null,
     },
   ];
 
   return (
-    <div className="anim-fade-up">
-      <p className="section-eyebrow mb-2">Адміністрування</p>
-      <h1
-        className="text-3xl font-semibold mb-10"
-        style={{ fontFamily: "var(--font-heading)", color: "#1E1B4B" }}
-      >
-        Огляд платформи
+    <div>
+      <p className="font-mono text-[10.5px] uppercase tracking-widest mb-2" style={{ color: "var(--sh-muted)" }}>
+        Адміністрування · огляд
+      </p>
+      <h1 className="font-serif text-[28px] leading-tight mb-8" style={{ color: "var(--ink)" }}>
+        Панель <em style={{ fontStyle: "italic", color: "var(--accent)" }}>керування</em>
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        {stats.map(({ label, value, icon: Icon, format }, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-10">
+        {stats.map(({ label, value, Icon }) => (
           <div
             key={label}
-            className="rounded-2xl p-6 anim-fade-up"
-            style={{
-              background: "#1E1B4B",
-              boxShadow: "0 8px 32px rgba(30,27,75,0.18)",
-              animationDelay: `${i * 0.08}s`,
-            }}
+            className="rounded-2xl p-6 flex flex-col gap-4"
+            style={{ background: "var(--ink)" }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.45)" }}>
                 {label}
               </p>
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(245,158,11,0.15)" }}
-              >
-                <Icon className="w-4 h-4" style={{ color: "#F59E0B" }} />
-              </div>
+              {Icon && (
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{ background: "rgba(255,255,255,0.08)" }}
+                >
+                  <Icon size={14} className="opacity-60 text-[var(--accent-soft)]" />
+                </div>
+              )}
             </div>
-            <p
-              className="text-4xl font-semibold"
-              style={{ fontFamily: "var(--font-heading)", color: "#fff" }}
-            >
-              {format(value)}
+            <p className="font-serif leading-none" style={{ fontSize: 40, color: "#fff" }}>
+              {value}
             </p>
           </div>
         ))}
+      </div>
+
+      {/* Quick links */}
+      <div
+        className="rounded-2xl border p-6"
+        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
+      >
+        <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: "var(--sh-muted)" }}>
+          Швидкий доступ
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { href: "/admin/users",    label: "Управління користувачами" },
+            { href: "/admin/listings", label: "Модерація оголошень" },
+            { href: "/admin/bookings", label: "Всі бронювання" },
+          ].map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              className="flex items-center justify-center py-3 px-4 rounded-xl text-sm font-medium text-center transition-colors hover:bg-[var(--bg-alt)]"
+              style={{ border: "1px solid var(--line)", color: "var(--ink-2)" }}
+            >
+              {label}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
