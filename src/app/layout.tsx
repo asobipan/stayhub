@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({
+const geist = Geist({
   variable: "--font-sans",
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const playfair = Playfair_Display({
+const geistMono = Geist_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+const instrumentSerif = Instrument_Serif({
   variable: "--font-heading",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  weight: ["400"],
   style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
-  title: "StayHub — Find your perfect place",
-  description: "Discover and book unique homes around the world",
+  title: "StayHub — Помешкання з характером",
+  description: "Понад 580 житл у 8 країнах Європи. Лофти, вілли, кабіни та апартаменти без масовки.",
 };
 
 export default function RootLayout({
@@ -31,12 +38,13 @@ export default function RootLayout({
   return (
     <html
       lang="uk"
-      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <NuqsAdapter>
           <Header />
           <main className="flex-1">{children}</main>
+          <Footer />
           <Toaster richColors position="top-right" />
         </NuqsAdapter>
       </body>

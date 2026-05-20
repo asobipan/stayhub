@@ -1,556 +1,284 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star, MapPin } from "lucide-react";
 import { db } from "@/lib/db";
 
-const FEATURED_CITIES = [
-  { name: "Київ", country: "Україна", tag: "Столиця" },
-  { name: "Львів", country: "Україна", tag: "Старе місто" },
-  { name: "Одеса", country: "Україна", tag: "Море" },
-  { name: "Відень", country: "Австрія", tag: "Культура" },
-  { name: "Варшава", country: "Польща", tag: "Архітектура" },
-  { name: "Барселона", country: "Іспанія", tag: "Пляж" },
+/* ─── Data ──────────────────────────────────────────────────── */
+const CITIES = [
+  { name: "Київ",      country: "Україна",    count: 142, hue: 28  },
+  { name: "Львів",     country: "Україна",    count:  97, hue: 35  },
+  { name: "Одеса",     country: "Україна",    count:  68, hue: 200 },
+  { name: "Відень",    country: "Австрія",    count:  54, hue: 145 },
+  { name: "Варшава",   country: "Польща",     count:  41, hue: 320 },
+  { name: "Барселона", country: "Іспанія",    count:  88, hue: 55  },
+  { name: "Прага",     country: "Чехія",      count:  47, hue: 12  },
+  { name: "Лісабон",   country: "Португалія", count:  39, hue: 175 },
 ];
 
-async function getLatestListings() {
+const STRIP = [
+  { n: "01", title: "Куратовано редакцією",   body: "Кожне оголошення проходить ручний відбір. Жодних шумних «студій за €30» з обкладинками з фотобанку." },
+  { n: "02", title: "Прозорі ціни",           body: "Усе включено в підсумкову суму до бронювання — без сюрпризів на чек-аут і прихованих сервісних зборів." },
+  { n: "03", title: "Підтримка 24/7",         body: "Українською, англійською або польською — відповідаємо в чаті протягом години у будь-який час доби." },
+  { n: "04", title: "Гарантія заїзду",        body: "Якщо щось піде не так на місці — переселимо у житло того ж рівня або повернемо кошти за лічені години." },
+];
+
+async function getListings() {
   return db.listing.findMany({
     where: { isActive: true },
     orderBy: { createdAt: "desc" },
-    take: 6,
+    take: 8,
     select: {
-      id: true,
-      title: true,
-      city: true,
-      country: true,
-      price: true,
-      images: true,
-      avgRating: true,
-      reviewCount: true,
-      bedrooms: true,
-      maxGuests: true,
+      id: true, title: true, city: true, country: true,
+      price: true, images: true, avgRating: true,
+      reviewCount: true, bedrooms: true,
     },
   });
 }
 
-async function getStats() {
-  const [listingCount, userCount] = await Promise.all([
-    db.listing.count({ where: { isActive: true } }),
-    db.user.count(),
-  ]);
-  return { listingCount, userCount };
+/* ─── Layout slot per editorial pattern ─────────────────────── */
+function editorialSlot(i: number) {
+  const slot = i % 8;
+  if (slot === 0) return { col: "col-span-editorial-hero", aspect: "aspect-hero-card" };
+  if (slot === 1) return { col: "col-span-editorial-tall", aspect: "aspect-tall-card" };
+  if (slot === 2) return { col: "col-span-editorial-wide", aspect: "aspect-wide-card" };
+  if (slot === 6) return { col: "col-span-editorial-wide", aspect: "aspect-wide-card" };
+  return { col: "col-span-editorial-norm", aspect: "aspect-[4/3]" };
 }
 
+/* ─── Page ───────────────────────────────────────────────────── */
 export default async function HomePage() {
-  const [listings, stats] = await Promise.all([
-    getLatestListings(),
-    getStats(),
-  ]);
+  const listings = await getListings();
+  const heroListing = listings[0];
 
   return (
     <>
-      {/* Grain overlay — premium texture */}
-      <div className='grain' aria-hidden />
+      {/* ─── HERO ──────────────────────────────────────────────── */}
+      <section className="bg-[var(--background)] overflow-hidden">
+        <div className="max-w-[1440px] mx-auto px-8 py-16 grid grid-cols-[1.15fr_1fr] gap-14 items-center">
 
-      {/* ─── HERO ────────────────────────────────────────────── */}
-      <section
-        className='relative overflow-hidden'
-        style={{ background: "#0F0D2E", minHeight: "100svh" }}
-      >
-        {/* Ambient light blobs */}
-        <div aria-hidden className='absolute inset-0 pointer-events-none'>
-          <div
-            style={{
-              position: "absolute",
-              top: "10%",
-              left: "-10%",
-              width: 700,
-              height: 700,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(49,46,129,0.55) 0%, transparent 70%)",
-              filter: "blur(1px)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "-5%",
-              right: "-5%",
-              width: 500,
-              height: 500,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)",
-            }}
-          />
-          {/* Fine grid lines */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
-            `,
-              backgroundSize: "80px 80px",
-            }}
-          />
-        </div>
-
-        <div className='relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-20 pb-24 flex flex-col min-h-svh'>
-          {/* Top meta row */}
-          <div className='flex items-center justify-between mb-auto anim-fade-in'>
-            <div className='flex items-center gap-3'>
-              <span className='hero-rule' />
-              <span
-                className='section-eyebrow'
-                style={{ color: "rgba(245,158,11,0.8)" }}
-              >
-                Оренда житла
+          {/* Left */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-7 h-px bg-[var(--sh-accent)]" />
+              <span className="font-mono-sh text-[11px] uppercase tracking-[0.08em] text-[var(--sh-muted)]">
+                StayHub · 2026 · Літня колекція
               </span>
             </div>
-            <span
-              className='section-eyebrow'
-              style={{ color: "rgba(255,255,255,0.25)" }}
-            >
-              {new Date().getFullYear()}
-            </span>
-          </div>
 
-          {/* Giant headline + photo */}
-          <div className="flex-1 flex flex-row items-center justify-between gap-10 lg:gap-16 py-12">
+            <h1 className="font-serif text-[clamp(2.8rem,5.8vw,5.4rem)] leading-[0.97] tracking-[-0.025em] text-[var(--ink)] mb-6">
+              Помешкання
+              <br />з <em className="italic text-[var(--sh-accent)]">характером</em>
+              <br />для людей з{" "}
+              <span className="relative inline-block">
+                планами
+                <svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden className="absolute bottom-[-8px] left-0 w-full h-3">
+                  <path d="M2 8C40 2 80 10 120 6S180 4 198 8" fill="none" stroke="var(--sh-accent)" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </span>
+            </h1>
 
-            {/* Left: vertical stack */}
-            <div className="flex flex-col justify-center flex-1 min-w-0">
-              <h1
-                className="anim-fade-up delay-1"
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "clamp(2.6rem, 5vw, 4.5rem)",
-                  lineHeight: 1.1,
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  color: "#F8F6F2",
-                  marginBottom: "1.25rem",
-                }}
+            <p className="text-[16px] leading-[1.55] text-[var(--ink-2)] max-w-[520px] mb-8">
+              Понад 580 житл, обраних редакцією: лофти, вілли, кабіни та апартаменти
+              у 8 країнах Європи. Без масовки, з характером.
+            </p>
+
+            {/* Search block */}
+            <div className="grid grid-cols-[1.4fr_1fr_auto] items-end gap-0 bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.06)] mb-5">
+              <div className="px-5 py-3 border-r border-[var(--line)]">
+                <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-1">Куди</label>
+                <input
+                  type="text"
+                  placeholder="Київ, Львів, Барселона…"
+                  className="w-full text-[14px] font-medium text-[var(--ink)] bg-transparent outline-none placeholder:text-[color-mix(in_oklab,var(--ink)_35%,transparent)]"
+                />
+              </div>
+              <div className="px-5 py-3">
+                <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-1">Коли</label>
+                <input
+                  type="text"
+                  placeholder="Додати дати"
+                  className="w-full text-[14px] font-medium text-[var(--ink)] bg-transparent outline-none placeholder:text-[color-mix(in_oklab,var(--ink)_35%,transparent)]"
+                />
+              </div>
+              <Link
+                href="/listings"
+                className="m-1 flex items-center gap-2 px-[22px] py-[14px] bg-[var(--ink)] text-[var(--background)] rounded-xl text-[13px] font-semibold no-underline transition-transform hover:-translate-y-px"
               >
-                Знайди{" "}
-                <em style={{ color: "#F59E0B", fontStyle: "italic" }}>ідеальне</em>
-                <br />
-                місце для відпочинку
-              </h1>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
+                </svg>
+                Шукати
+              </Link>
+            </div>
 
-              <p
-                className="anim-fade-up delay-2"
-                style={{
-                  color: "rgba(248,246,242,0.5)",
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "1rem",
-                  lineHeight: 1.7,
-                  maxWidth: 420,
-                  marginBottom: "2rem",
-                }}
-              >
-                Тисячі унікальних помешкань по всьому світу — від мінімалістичних апартаментів до розкішних вілл.
-              </p>
-
-              <div className="anim-fade-up delay-3">
+            {/* Popular pills */}
+            <div className="flex items-center flex-wrap gap-2 text-[12px]">
+              <span className="text-[var(--sh-muted)]">Популярне:</span>
+              {["Біля моря", "Гори", "Лофт у центрі", "З басейном", "Для роботи"].map((t) => (
                 <Link
-                  href="/listings"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "14px 28px",
-                    borderRadius: 50,
-                    background: "#F59E0B",
-                    color: "#0F0D2E",
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "0.9rem",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    letterSpacing: "0.01em",
-                  }}
+                  key={t}
+                  href={`/listings?q=${encodeURIComponent(t)}`}
+                  className="px-3 py-1.5 border border-[var(--line)] rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--surface)] hover:border-[var(--ink)] hover:text-[var(--ink)]"
                 >
-                  Переглянути всі оголошення
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
+                  {t}
                 </Link>
-              </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — hero card stack */}
+          <div className="relative aspect-hero-stack">
+            {/* Main card */}
+            <div className="absolute top-0 right-0 w-[78%] h-[78%] rounded-[20px] overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.12)] z-10 bg-[var(--bg-alt)]">
+              {heroListing?.images[0] ? (
+                <Image
+                  src={heroListing.images[0]}
+                  alt={heroListing.title}
+                  fill
+                  sizes="40vw"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[oklch(0.62_0.08_28)] to-[oklch(0.45_0.08_48)]" />
+              )}
+              {/* Tag */}
+              <span className="absolute top-4 left-4 flex items-center gap-1 px-2.5 py-1.5 bg-[color-mix(in_oklab,var(--surface)_92%,transparent)] backdrop-blur-md rounded-full font-mono-sh text-[10px] uppercase tracking-[0.06em] text-[var(--ink)] z-10">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s-7-7-7-12a7 7 0 1114 0c0 5-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/>
+                </svg>
+                {heroListing?.city ?? "Київ"}
+              </span>
+              {/* Bottom info */}
+              {heroListing && (
+                <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/70 to-transparent z-10 text-white">
+                  <p className="font-serif text-[22px] leading-[1.1] mb-2">{heroListing.title}</p>
+                  <div className="flex items-center gap-1.5 text-[12px] opacity-90">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--sh-accent)" stroke="none">
+                      <path d="M12 2l3 6.5 7 1-5 4.5 1.5 7L12 17l-6.5 4 1.5-7-5-4.5 7-1L12 2z"/>
+                    </svg>
+                    <span>{heroListing.avgRating.toFixed(2)}</span>
+                    <span className="opacity-60">·</span>
+                    <span>${heroListing.price}/ніч</span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Right: hero photo */}
-            <div
-              className="hidden lg:block shrink-0 anim-fade-in delay-2"
-              style={{ width: "clamp(300px, 35vw, 480px)" }}
-            >
-              <Image
-                src="/hero-right.webp"
-                alt="Унікальні помешкання"
-                width={920}
-                height={1040}
-                priority
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  borderRadius: 28,
-                  display: "block",
-                }}
-              />
+            {/* Secondary card */}
+            <div className="absolute bottom-0 left-0 w-[56%] h-[48%] rounded-[20px] overflow-hidden z-20 border-[6px] border-[var(--background)] bg-[var(--bg-alt)] shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+              {listings[1]?.images[0] ? (
+                <Image src={listings[1].images[0]} alt={listings[1].title} fill sizes="25vw" className="object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[oklch(0.55_0.08_155)] to-[oklch(0.38_0.08_175)]" />
+              )}
             </div>
 
-          </div>{/* end flex-1 row */}
+            {/* Stat 1 */}
+            <div className="absolute bottom-[-8px] right-[-8px] z-30 flex flex-col bg-[var(--ink)] text-[var(--background)] rounded-2xl px-[18px] py-4 w-[140px] shadow-[0_12px_40px_rgba(0,0,0,0.18)]">
+              <span className="font-serif text-[36px] leading-none text-[var(--sh-accent)] mb-1.5">580+</span>
+              <span className="font-mono-sh text-[9.5px] uppercase tracking-[0.06em] text-[color-mix(in_oklab,var(--background)_70%,transparent)] leading-[1.3]">
+                помешкань<br />у каталозі
+              </span>
+            </div>
 
-          {/* Bottom stats bar */}
-          <div
-            className='anim-fade-up delay-5 grid grid-cols-3 gap-px mt-auto'
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              borderRadius: 12,
-              overflow: "hidden",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            {[
-              { value: `${stats.listingCount}+`, label: "Активних оголошень" },
-              { value: `${stats.userCount}+`, label: "Задоволених гостей" },
-              { value: "80+", label: "Міст по всьому світу" },
-            ].map(({ value, label }) => (
-              <div
-                key={label}
-                className='flex flex-col items-center py-5 px-3 text-center'
-                style={{
-                  background: "rgba(15,13,46,0.6)",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
-                    color: "#F59E0B",
-                    fontWeight: 600,
-                    lineHeight: 1,
-                  }}
-                >
-                  {value}
-                </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "0.7rem",
-                    color: "rgba(255,255,255,0.35)",
-                    marginTop: 4,
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  {label}
-                </span>
-              </div>
-            ))}
+            {/* Stat 2 */}
+            <div className="absolute top-6 left-[-40px] z-30 flex flex-col bg-[var(--surface)] text-[var(--ink)] rounded-2xl px-[18px] py-4 w-[124px] shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
+              <span className="font-serif text-[30px] leading-none text-[var(--ink)] mb-1.5">4.91</span>
+              <span className="font-mono-sh text-[9.5px] uppercase tracking-[0.06em] text-[var(--sh-muted)] leading-[1.3] flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--sh-accent)" stroke="none">
+                  <path d="M12 2l3 6.5 7 1-5 4.5 1.5 7L12 17l-6.5 4 1.5-7-5-4.5 7-1L12 2z"/>
+                </svg>
+                середня оцінка
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── MARQUEE CITIES ──────────────────────────────────── */}
-      <section
-        style={{
-          background: "#1E1B4B",
-          borderTop: "1px solid rgba(245,158,11,0.15)",
-          overflow: "hidden",
-          padding: "0",
-        }}
-      >
-        <div className='marquee-track flex' style={{ width: "max-content" }}>
-          {[
-            ...FEATURED_CITIES,
-            ...FEATURED_CITIES,
-            ...FEATURED_CITIES,
-            ...FEATURED_CITIES,
-          ].map(({ name, tag }, i) => (
-            <Link
-              key={i}
-              href={`/listings?city=${encodeURIComponent(name)}`}
-              className='city-pill shrink-0 flex items-center gap-3 px-7 py-4'
-              style={{
-                borderRight: "1px solid rgba(255,255,255,0.07)",
-                textDecoration: "none",
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "1.05rem",
-                  color: "#F8F6F2",
-                  fontWeight: 500,
-                }}
-              >
-                {name}
-              </span>
-              <span
-                className='city-pill-tag'
-                style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "0.65rem",
-                  color: "rgba(255,255,255,0.35)",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {tag}
-              </span>
-              <span
-                style={{
-                  color: "rgba(245,158,11,0.4)",
-                  fontSize: "0.75rem",
-                  marginLeft: 2,
-                }}
-              >
-                →
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── FEATURED LISTINGS ───────────────────────────────── */}
+      {/* ─── EDITORIAL LISTINGS ────────────────────────────────── */}
       {listings.length > 0 && (
-        <section style={{ background: "#FAFAF8" }} className='py-20 md:py-28'>
-          <div className='max-w-7xl mx-auto px-6 sm:px-10 lg:px-16'>
-            {/* Section header */}
-            <div className='flex items-end justify-between mb-14'>
+        <section className="py-16 md:py-20 bg-[var(--background)]">
+          <div className="max-w-[1320px] mx-auto px-8">
+            {/* Section head */}
+            <div className="flex items-end justify-between gap-8 mb-14">
               <div>
-                <p className='section-eyebrow mb-3'>Нові надходження</p>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    fontSize: "clamp(2rem, 4vw, 3rem)",
-                    color: "#0F0D2E",
-                    fontWeight: 600,
-                    lineHeight: 1.1,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  Щойно додані
-                  <br />
-                  <em
-                    style={{
-                      color: "#78716C",
-                      fontStyle: "italic",
-                      fontWeight: 400,
-                    }}
-                  >
-                    помешкання
-                  </em>
+                <p className="font-mono-sh text-[11px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-2.5">
+                  Редакторський вибір · {listings.length} з 580
+                </p>
+                <h2 className="font-serif font-normal text-[clamp(2rem,4vw,3.4rem)] leading-none tracking-[-0.02em] text-[var(--ink)]">
+                  Помешкання, які
+                  <br /><em className="italic text-[var(--sh-accent)]">варто побачити</em>
                 </h2>
               </div>
               <Link
-                href='/listings'
-                style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "0.8rem",
-                  color: "#1E1B4B",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  paddingBottom: 2,
-                  borderBottom: "1px solid #1E1B4B",
-                }}
+                href="/listings"
+                className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--ink)] no-underline border-b border-[var(--ink)] pb-0.5 transition-colors hover:text-[var(--sh-accent)] hover:border-[var(--sh-accent)] shrink-0 mb-1"
               >
-                Всі оголошення
-                <svg
-                  viewBox='0 0 24 24'
-                  width='14'
-                  height='14'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                >
-                  <path d='M5 12h14M12 5l7 7-7 7' />
+                Весь каталог
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 6l6 6-6 6"/>
                 </svg>
               </Link>
             </div>
 
-            {/* Asymmetric grid */}
-            <div className='grid grid-cols-1 md:grid-cols-12 gap-5'>
+            {/* Editorial grid */}
+            <div className="grid grid-cols-12-editorial gap-5">
               {listings.map((listing, i) => {
-                // First card — wide hero
-                const isHero = i === 0;
-                // Second card — tall
-                const isTall = i === 1;
-                const colSpan = isHero
-                  ? "md:col-span-7"
-                  : isTall
-                    ? "md:col-span-5"
-                    : "md:col-span-4";
-                const aspectPad = isHero ? "66%" : isTall ? "110%" : "75%";
-
+                const { col, aspect } = editorialSlot(i);
+                const isHero = i % 8 === 0;
                 return (
                   <Link
                     key={listing.id}
                     href={`/listings/${listing.id}`}
-                    className={`listing-card group ${colSpan} block`}
-                    style={{ textDecoration: "none" }}
+                    className={`${col} group flex flex-col no-underline`}
                   >
                     {/* Image */}
-                    <div
-                      className='relative overflow-hidden'
-                      style={{
-                        paddingBottom: aspectPad,
-                        borderRadius: 16,
-                        background: "#E8E4DC",
-                      }}
-                    >
+                    <div className={`relative ${aspect} rounded-[14px] overflow-hidden bg-[var(--bg-alt)] mb-3 card-img-zoom`}>
                       {listing.images[0] ? (
                         <Image
                           src={listing.images[0]}
                           alt={listing.title}
                           fill
-                          sizes='(max-width: 768px) 100vw, 60vw'
-                          className='listing-img object-cover'
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover"
                         />
                       ) : (
-                        <div className='absolute inset-0 flex items-center justify-center'>
-                          <svg
-                            viewBox='0 0 24 24'
-                            width='40'
-                            height='40'
-                            fill='none'
-                            stroke='#C4BFBA'
-                            strokeWidth='1'
-                          >
-                            <path d='M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z' />
-                            <path d='M9 21V12h6v9' />
-                          </svg>
-                        </div>
+                        <div
+                          className="w-full h-full"
+                          style={{ background: `linear-gradient(135deg, oklch(0.62 0.08 ${(i * 35) % 360}) 0%, oklch(0.45 0.08 ${(i * 35 + 20) % 360}) 100%)` }}
+                        />
                       )}
-
-                      {/* Overlay on hover */}
-                      <div
-                        className='absolute inset-0 opacity-0 group-hover:opacity-100'
-                        style={{
-                          background:
-                            "linear-gradient(to top, rgba(15,13,46,0.5) 0%, transparent 50%)",
-                          transition: "opacity 0.4s ease",
-                          borderRadius: 16,
-                        }}
-                      />
-
-                      {/* Index number — editorial touch */}
-                      <div
-                        className='absolute top-4 left-4'
-                        style={{
-                          fontFamily: "var(--font-heading)",
-                          fontSize: "0.7rem",
-                          color: "rgba(255,255,255,0.9)",
-                          background: "rgba(15,13,46,0.5)",
-                          backdropFilter: "blur(6px)",
-                          padding: "3px 8px",
-                          borderRadius: 4,
-                          letterSpacing: "0.1em",
-                        }}
-                      >
+                      {/* Index */}
+                      <span className="absolute top-3 left-3 font-mono-sh text-[10px] tracking-[0.06em] px-2 py-1 bg-[color-mix(in_oklab,var(--surface)_90%,transparent)] backdrop-blur-md rounded-md text-[var(--ink)]">
                         {String(i + 1).padStart(2, "0")}
-                      </div>
-
+                      </span>
                       {/* Rating */}
                       {listing.reviewCount > 0 && (
-                        <div
-                          className='absolute top-4 right-4 flex items-center gap-1 px-2.5 py-1 rounded-full'
-                          style={{
-                            background: "rgba(255,255,255,0.92)",
-                            backdropFilter: "blur(8px)",
-                          }}
-                        >
-                          <Star
-                            width={11}
-                            height={11}
-                            style={{ fill: "#F59E0B", color: "#F59E0B" }}
-                          />
-                          <span
-                            style={{
-                              fontSize: "0.7rem",
-                              fontWeight: 700,
-                              color: "#1C1917",
-                            }}
-                          >
-                            {listing.avgRating.toFixed(1)}
-                          </span>
-                        </div>
+                        <span className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-full text-[12px] font-semibold text-[var(--ink)]">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--sh-accent)" stroke="none">
+                            <path d="M12 2l3 6.5 7 1-5 4.5 1.5 7L12 17l-6.5 4 1.5-7-5-4.5 7-1L12 2z"/>
+                          </svg>
+                          {listing.avgRating.toFixed(2)}
+                        </span>
                       )}
                     </div>
-
-                    {/* Card info */}
-                    <div className='pt-4 pb-1 flex items-start justify-between gap-3'>
-                      <div className='min-w-0'>
-                        <h3
-                          className='line-clamp-1'
-                          style={{
-                            fontFamily: "var(--font-heading)",
-                            fontSize: isHero ? "1.05rem" : "0.9rem",
-                            color: "#0F0D2E",
-                            fontWeight: 600,
-                            marginBottom: 4,
-                          }}
-                        >
+                    {/* Info */}
+                    <div className="flex items-start justify-between gap-2 px-0.5">
+                      <div className="min-w-0">
+                        <h3 className={`font-serif font-normal text-[var(--ink)] leading-[1.15] tracking-[-0.01em] mb-1 line-clamp-2 ${isHero ? "text-[22px]" : "text-[19px]"}`}>
                           {listing.title}
                         </h3>
-                        <div className='flex items-center gap-1.5'>
-                          <MapPin
-                            width={11}
-                            height={11}
-                            style={{ color: "#A8A29E", flexShrink: 0 }}
-                          />
-                          <span
-                            style={{
-                              fontFamily: "var(--font-sans)",
-                              fontSize: "0.75rem",
-                              color: "#78716C",
-                            }}
-                          >
-                            {listing.city}, {listing.country}
-                          </span>
-                          <span
-                            style={{ color: "#D1CEC9", fontSize: "0.6rem" }}
-                          >
-                            ·
-                          </span>
-                          <span
-                            style={{
-                              fontFamily: "var(--font-sans)",
-                              fontSize: "0.75rem",
-                              color: "#A8A29E",
-                            }}
-                          >
-                            {listing.bedrooms} кімн.
-                          </span>
-                        </div>
+                        <p className="flex items-center gap-1.5 text-[12.5px] text-[var(--sh-muted)] truncate">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 22s-7-7-7-12a7 7 0 1114 0c0 5-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/>
+                          </svg>
+                          {listing.city}, {listing.country}
+                          <span className="text-[9px]">·</span>
+                          {listing.bedrooms} {listing.bedrooms === 1 ? "спальня" : "спальні"}
+                        </p>
                       </div>
-                      <div className='shrink-0 text-right'>
-                        <span
-                          style={{
-                            fontFamily: "var(--font-heading)",
-                            fontSize: "1rem",
-                            color: "#1E1B4B",
-                            fontWeight: 700,
-                          }}
-                        >
-                          ${listing.price}
-                        </span>
-                        <span
-                          style={{
-                            fontFamily: "var(--font-sans)",
-                            fontSize: "0.7rem",
-                            color: "#A8A29E",
-                          }}
-                        >
-                          {" "}
-                          /ніч
-                        </span>
+                      <div className="shrink-0 text-right">
+                        <span className="font-semibold text-[14px] text-[var(--ink)]">${listing.price}</span>
+                        <span className="text-[12.5px] text-[var(--sh-muted)]"> /ніч</span>
                       </div>
                     </div>
                   </Link>
@@ -561,90 +289,56 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── CITIES GRID ─────────────────────────────────────── */}
-      <section style={{ background: "#0F0D2E" }} className='py-20 md:py-28'>
-        <div className='max-w-7xl mx-auto px-6 sm:px-10 lg:px-16'>
-          <div className='flex items-end justify-between mb-14'>
+      {/* ─── DESTINATIONS ──────────────────────────────────────── */}
+      <section className="bg-[var(--ink)] py-[72px]">
+        <div className="max-w-[1320px] mx-auto px-8">
+          <div className="flex items-end justify-between gap-8 mb-14">
             <div>
-              <p
-                className='section-eyebrow mb-3'
-                style={{ color: "rgba(245,158,11,0.6)" }}
-              >
-                Напрямки
+              <p className="font-mono-sh text-[11px] uppercase tracking-[0.08em] text-[color-mix(in_oklab,var(--background)_50%,transparent)] mb-2.5">
+                Напрямки · 08 столиць
               </p>
-              <h2
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "clamp(2rem, 4vw, 3rem)",
-                  color: "#F8F6F2",
-                  fontWeight: 600,
-                  lineHeight: 1.1,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Популярні
-                <br />
-                <em style={{ color: "#F59E0B", fontStyle: "italic" }}>міста</em>
+              <h2 className="font-serif font-normal text-[clamp(2rem,4vw,3.4rem)] leading-none tracking-[-0.02em] text-[var(--background)]">
+                Куди тобі
+                <br /><em className="italic text-[var(--sh-accent)]">тягне</em> цього сезону?
               </h2>
+            </div>
+            <div className="text-right">
+              <span className="block font-serif text-[56px] leading-[0.95] text-[var(--sh-accent)]">580+</span>
+              <span className="font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[color-mix(in_oklab,var(--background)_40%,transparent)] leading-[1.3]">
+                активних<br />оголошень
+              </span>
             </div>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-              gap: 1,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.04)",
-              borderRadius: 16,
-              overflow: "hidden",
-            }}
-          >
-            {FEATURED_CITIES.map(({ name, country, tag }) => (
+          <div className="grid grid-cols-4 gap-4">
+            {CITIES.map((city, i) => (
               <Link
-                key={name}
-                href={`/listings?city=${encodeURIComponent(name)}`}
-                className='city-pill group flex flex-col justify-between p-6'
-                style={{
-                  background: "rgba(15,13,46,0.8)",
-                  textDecoration: "none",
-                  minHeight: 140,
-                }}
+                key={city.name}
+                href={`/listings?city=${encodeURIComponent(city.name)}`}
+                className="relative h-[220px] rounded-[14px] overflow-hidden flex flex-col justify-between p-[22px] text-white no-underline transition-transform duration-300 hover:-translate-y-1"
               >
-                <span
-                  className='city-pill-tag'
-                  style={{
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "0.6rem",
-                    color: "rgba(255,255,255,0.3)",
-                    letterSpacing: "0.16em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {tag}
+                {/* Gradient bg */}
+                <div
+                  className="absolute inset-0 transition-[filter] duration-300 group-hover:saturate-[1.1]"
+                  style={{ background: `linear-gradient(160deg, oklch(0.65 0.12 ${city.hue}) 0%, oklch(0.35 0.10 ${city.hue + 30}) 100%)` }}
+                />
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[40%] to-black/50" />
+
+                <span className="relative z-10 font-mono-sh text-[11px] uppercase tracking-[0.12em] opacity-85">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-                <div>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-heading)",
-                      fontSize: "1.4rem",
-                      color: "#F8F6F2",
-                      fontWeight: 500,
-                      lineHeight: 1.1,
-                      marginBottom: 2,
-                    }}
-                  >
-                    {name}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans)",
-                      fontSize: "0.7rem",
-                      color: "rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {country}
-                  </p>
+                <div className="relative z-10">
+                  <h3 className="font-serif text-[32px] font-normal leading-none tracking-[-0.01em] mb-1">
+                    {city.name}
+                  </h3>
+                  <p className="text-[12px] opacity-85">{city.country}</p>
+                </div>
+                <div className="relative z-10 flex items-center justify-between font-mono-sh text-[11px] tracking-[0.04em] opacity-90">
+                  <span>{city.count} помешкань</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7 17L17 7M9 7h8v8"/>
+                  </svg>
                 </div>
               </Link>
             ))}
@@ -652,132 +346,89 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── HOST CTA ────────────────────────────────────────── */}
-      <section style={{ background: "#FAFAF8" }} className='py-20 md:py-28'>
-        <div className='max-w-7xl mx-auto px-6 sm:px-10 lg:px-16'>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr auto",
-              alignItems: "center",
-              gap: "clamp(24px, 5vw, 80px)",
-              background: "#1E1B4B",
-              borderRadius: 20,
-              padding: "clamp(32px, 5vw, 64px)",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* BG decoration */}
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                right: -60,
-                top: -60,
-                width: 300,
-                height: 300,
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)",
-              }}
-            />
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                left: "40%",
-                bottom: -80,
-                width: 200,
-                height: 200,
-                borderRadius: "50%",
-                border: "1px solid rgba(245,158,11,0.1)",
-              }}
-            />
+      {/* ─── EXPERIENCE STRIP ──────────────────────────────────── */}
+      <section className="py-16 bg-[var(--bg-alt)]">
+        <div className="max-w-[1320px] mx-auto px-8">
+          <div className="grid grid-cols-4 gap-0">
+            {STRIP.map((item, i) => (
+              <div
+                key={item.n}
+                className={`pr-7 ${i < STRIP.length - 1 ? "border-r border-[var(--line-2)]" : ""}`}
+              >
+                <span className="inline-block font-mono-sh text-[11px] text-[var(--sh-accent)] tracking-[0.1em] mb-5">
+                  {item.n}
+                </span>
+                <h4 className="font-serif text-[22px] font-normal leading-[1.15] mb-2 text-[var(--ink)]">
+                  {item.title}
+                </h4>
+                <p className="text-[13.5px] text-[var(--ink-2)] leading-[1.55]">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div className='relative z-10'>
-              <p
-                className='section-eyebrow mb-4'
-                style={{ color: "rgba(245,158,11,0.7)" }}
-              >
-                Для орендодавців
-              </p>
-              <h2
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)",
-                  color: "#F8F6F2",
-                  fontWeight: 600,
-                  lineHeight: 1.15,
-                  letterSpacing: "-0.02em",
-                  marginBottom: 16,
-                }}
-              >
-                Маєш житло?
-                <br />
-                <em style={{ color: "#F59E0B", fontStyle: "italic" }}>
-                  Заробляй
-                </em>{" "}
-                на ньому.
-              </h2>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "0.9rem",
-                  color: "rgba(248,246,242,0.5)",
-                  lineHeight: 1.7,
-                  maxWidth: 400,
-                }}
-              >
-                Розмісти оголошення безкоштовно і отримуй бронювання від
-                перевірених гостей з усього світу.
-              </p>
+      {/* ─── HOST CTA ──────────────────────────────────────────── */}
+      <section className="py-20 bg-[var(--background)]">
+        <div className="max-w-[1320px] mx-auto px-8">
+          <div className="relative bg-[var(--ink)] rounded-3xl p-14 overflow-hidden text-[var(--background)]">
+            {/* Blobs */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-[-250px] right-[-180px] w-[500px] h-[500px] rounded-full opacity-[0.12]"
+                style={{ background: "radial-gradient(circle, var(--sh-accent) 0%, transparent 70%)" }} />
+              <div className="absolute bottom-[-180px] left-[30%] w-[360px] h-[360px] rounded-full opacity-[0.06]"
+                style={{ background: "radial-gradient(circle, var(--sh-accent) 0%, transparent 70%)" }} />
+              <svg viewBox="0 0 600 400" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
+                <path d="M0 200 Q150 100 300 200 T600 200" stroke="var(--sh-accent)" strokeOpacity="0.18" strokeWidth="1" fill="none"/>
+                <path d="M0 240 Q150 140 300 240 T600 240" stroke="var(--sh-accent)" strokeOpacity="0.12" strokeWidth="1" fill="none"/>
+              </svg>
             </div>
 
-            <Link
-              href='/dashboard/listings/new'
-              className='relative z-10 shrink-0 flex items-center gap-3 group'
-              style={{ textDecoration: "none" }}
-            >
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 64,
-                  height: 64,
-                  borderRadius: "50%",
-                  background: "#F59E0B",
-                  color: "#0F0D2E",
-                  flexShrink: 0,
-                }}
-              >
-                <svg
-                  viewBox='0 0 24 24'
-                  width='22'
-                  height='22'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                >
-                  <path d='M12 5v14M5 12h14' />
-                </svg>
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "0.8rem",
-                  color: "rgba(248,246,242,0.6)",
-                  letterSpacing: "0.06em",
-                  display: "none",
-                }}
-                className='hidden lg:block'
-              >
-                Розмістити
-                <br />
-                оголошення
-              </span>
-            </Link>
+            <div className="relative grid grid-cols-[1.3fr_1fr] gap-12 items-center">
+              <div>
+                <p className="font-mono-sh text-[11px] uppercase tracking-[0.08em] text-[var(--sh-accent)] mb-3">
+                  Для орендодавців · Реєстрація · 8 хв
+                </p>
+                <h2 className="font-serif font-normal text-[clamp(2rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] mb-4">
+                  Маєш простір,<br />який{" "}
+                  <em className="italic text-[var(--sh-accent)]">чекає гостей</em>?
+                </h2>
+                <p className="text-[14.5px] leading-[1.6] max-w-[440px] mb-7 text-[color-mix(in_oklab,var(--background)_70%,transparent)]">
+                  Розмісти оголошення безкоштовно. Допоможемо з фотозйомкою,
+                  описом і ціноутворенням. У середньому хости заробляють
+                  ₴32&thinsp;000–84&thinsp;000 на місяць.
+                </p>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <Link
+                    href="/dashboard/listings/new"
+                    className="flex items-center gap-2 px-[22px] py-[14px] bg-[var(--sh-accent)] text-[var(--accent-ink)] rounded-full text-[13.5px] font-semibold no-underline transition-transform hover:-translate-y-px"
+                  >
+                    Стати хостом
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M13 6l6 6-6 6"/>
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="flex flex-col">
+                {[
+                  { val: "₴52K", lbl: "Середній дохід\nхоста / міс" },
+                  { val: "8 хв", lbl: "Створити\nоголошення" },
+                  { val: "0%",   lbl: "Комісія\nза реєстрацію" },
+                ].map(({ val, lbl }, i, arr) => (
+                  <div
+                    key={val}
+                    className={`grid grid-cols-[auto_1fr] items-end gap-5 py-[22px] ${i < arr.length - 1 ? "border-b border-[color-mix(in_oklab,var(--background)_15%,transparent)]" : ""}`}
+                  >
+                    <span className="font-serif text-[52px] leading-[0.9] text-[var(--sh-accent)]">{val}</span>
+                    <span className="font-mono-sh text-[11px] uppercase tracking-[0.06em] text-[color-mix(in_oklab,var(--background)_60%,transparent)] leading-[1.4] text-right whitespace-pre-line">
+                      {lbl}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

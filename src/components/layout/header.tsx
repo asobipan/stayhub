@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { UserMenu } from "./user-menu";
 
@@ -13,88 +12,67 @@ export async function Header() {
   const user = session?.user;
 
   return (
-    <header
-      className="sticky top-0 z-50 border-b"
-      style={{
-        background: "rgba(250,250,248,0.97)",
-        backdropFilter: "blur(12px)",
-        borderColor: "rgba(0,0,0,0.07)",
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div
-              className="w-7 h-7 rounded-sm flex items-center justify-center transition-transform group-hover:scale-105"
-              style={{ background: "#1E1B4B" }}
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="#F59E0B">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-              </svg>
-            </div>
-            <span
-              className="font-semibold text-lg tracking-wide"
-              style={{
-                fontFamily: "var(--font-heading)",
-                color: "#1E1B4B",
-                letterSpacing: "0.03em",
-              }}
-            >
-              StayHub
-            </span>
+    <header className="sticky top-0 z-50 border-b border-[var(--line)] backdrop-header bg-[color-mix(in_oklab,var(--background)_86%,transparent)]">
+      <div className="max-w-[1440px] mx-auto px-8 py-[14px] grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 no-underline text-[var(--ink)]">
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--ink)] text-[var(--background)] shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M3 12l9-9 9 9v9a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1v-9z"
+                fill="currentColor"
+              />
+              <circle cx="12" cy="10" r="2" fill="var(--background)" />
+            </svg>
+          </span>
+          <span className="font-serif italic text-[22px] tracking-[-0.01em]">StayHub</span>
+        </Link>
+
+        {/* Center — pill nav (always show on desktop) */}
+        <nav className="justify-self-center flex gap-1 bg-[color-mix(in_oklab,var(--surface)_60%,transparent)] border border-[var(--line)] rounded-full p-1">
+          <Link
+            href="/listings"
+            className="px-[18px] py-2 text-[13px] font-medium rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
+          >
+            Помешкання
+          </Link>
+          <Link
+            href="/dashboard/listings/new"
+            className="px-[18px] py-2 text-[13px] font-medium rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
+          >
+            Стати хостом
+          </Link>
+        </nav>
+
+        {/* Right actions */}
+        <div className="justify-self-end flex items-center gap-1">
+          {/* Host shortcut */}
+          <Link
+            href="/dashboard/listings/new"
+            className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] font-medium text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Розмістити
           </Link>
 
-          {/* Search bar */}
-          <div className="hidden md:flex flex-1 max-w-sm mx-6">
-            <button
-              className="w-full flex items-center gap-2.5 px-4 py-2 rounded-md border transition-all duration-150 hover:border-indigo-800 hover:shadow-[0_0_0_3px_rgba(49,46,129,0.06)]"
-              style={{
-                borderColor: "#E7E5E0",
-                background: "#fff",
-              }}
-            >
-              <Search
-                className="w-3.5 h-3.5 shrink-0"
-                style={{ color: "#312E81" }}
-              />
-              <span
-                className="text-sm flex-1 text-left"
-                style={{ color: "#A8A29E", fontFamily: "var(--font-sans)" }}
-              >
-                Місто, район, адреса...
-              </span>
-            </button>
-          </div>
+          {/* Saved */}
+          <Link
+            href="/bookings"
+            className="flex items-center justify-center w-9 h-9 rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
+            title="Мої бронювання"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 21s-7-4.5-9.5-9C.5 8 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.5-9.5 9-9.5 9z" />
+            </svg>
+          </Link>
 
-          {/* Right side */}
-          <div className="flex items-center gap-1 shrink-0">
-            {(!user || user.role === "HOST" || user.role === "ADMIN") && (
-              <Link
-                href="/dashboard/listings/new"
-                className="hidden md:block text-sm font-medium px-4 py-2 rounded-md transition-colors duration-150 hover:bg-[#F5F4F0]"
-                style={{ color: "#44403C" }}
-              >
-                Здати житло
-              </Link>
-            )}
-
-            <UserMenu user={user} signOutAction={SignOutAction} />
-          </div>
+          {/* User pill + dropdown */}
+          <UserMenu user={user} signOutAction={SignOutAction} />
         </div>
-      </div>
 
-      {/* Mobile search */}
-      <div className="md:hidden px-4 pb-3">
-        <button
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-md border"
-          style={{ borderColor: "#E7E5E0", background: "#fff" }}
-        >
-          <Search className="w-3.5 h-3.5 shrink-0" style={{ color: "#312E81" }} />
-          <span className="text-sm" style={{ color: "#A8A29E" }}>
-            Де шукаєте?
-          </span>
-        </button>
       </div>
     </header>
   );
