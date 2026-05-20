@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
 import { UserMenu } from "./user-menu";
+import { HeaderCenter } from "./header-center";
 import { PlusIcon, GlobeIcon, HeartIcon } from "@/components/ui/icons";
 
 async function SignOutAction() {
@@ -27,24 +28,17 @@ export async function Header() {
           <span className="font-serif italic text-[22px] tracking-[-0.01em]">StayHub</span>
         </Link>
 
-        {/* Center — pill nav */}
-        <nav className="justify-self-center flex gap-1 bg-[color-mix(in_oklab,var(--surface)_60%,transparent)] border border-[var(--line)] rounded-full p-1">
-          <Link href="/listings" className="px-[18px] py-2 text-[13px] font-medium rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]">
-            Помешкання
-          </Link>
-          <Link href="/dashboard/listings/new" className="px-[18px] py-2 text-[13px] font-medium rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]">
-            Стати хостом
-          </Link>
-        </nav>
+        {/* Center — nav pills on home, search pill elsewhere */}
+        <HeaderCenter />
 
         {/* Right actions */}
         <div className="justify-self-end flex items-center gap-1">
           <Link
-            href="/dashboard/listings/new"
+            href="/host-landing"
             className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] font-medium text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
           >
             <PlusIcon size={14} />
-            Розмістити
+            Стати хостом
           </Link>
 
           <button

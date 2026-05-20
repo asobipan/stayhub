@@ -743,6 +743,7 @@
   box-shadow:
     0 2px 12px rgba(0, 0, 0, 0.06),
     0 1px 2px rgba(0, 0, 0, 0.04);
+  overflow: visible;
 }
 .sh-booking-head {
   display: flex;
@@ -767,7 +768,7 @@
   border: 1px solid var(--line-2);
   border-radius: 12px;
   margin-bottom: 12px;
-  overflow: hidden;
+  overflow: visible;
 }
 .sh-booking-dates {
   display: grid;
@@ -778,6 +779,12 @@
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
   transition: background 0.15s;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
 }
 .sh-booking-date:hover {
   background: var(--bg-alt);
@@ -905,6 +912,168 @@
   grid-template-columns: 288px 1fr;
 }
 
+/* HEADER NAV PILLS */
+.sh-nav-pill {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.sh-nav-pill:hover {
+  background: var(--bg-alt);
+  color: var(--ink);
+}
+.sh-nav-pill.active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* HEADER SEARCH PILL */
+.sh-search-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  height: 52px;
+  padding: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+.sh-search-pill:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.sh-search-pill > span:not(.sh-search-pill-div):not(.sh-search-pill-go) {
+  padding: 0 16px;
+}
+.sh-search-pill-div {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.sh-search-pill-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* BOOKING CALENDAR POPUP */
+.sh-booking-calendar-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: -1px;
+  right: -1px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+  z-index: 100;
+}
+.sh-booking-calendar-inline {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--bg);
+  margin-bottom: 12px;
+}
+
+/* CALENDAR */
+.sh-cal {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.sh-cal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: "Instrument Serif", serif;
+  font-size: 16px;
+  color: var(--ink);
+}
+.sh-cal-head button {
+  width: 28px; height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+}
+.sh-cal-head button:hover { background: var(--bg-alt); }
+.sh-cal-dow {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sh-cal-dow span { text-align: center; padding: 4px 0; }
+.sh-cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.sh-cal-cell {
+  aspect-ratio: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  padding: 4px 2px;
+  background: transparent;
+  cursor: pointer;
+  border: none;
+}
+.sh-cal-cell.empty { background: transparent; pointer-events: none; }
+.sh-cal-cell.past { color: var(--muted); opacity: 0.4; cursor: default; }
+.sh-cal-cell:not(.empty):not(.past):hover { background: var(--bg-alt); }
+.sh-cal-cell.surge { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.sh-cal-cell.deal  { background: color-mix(in oklab, oklch(0.7 0.15 145) 16%, transparent); }
+.sh-cal-cell.sel { background: var(--ink) !important; color: var(--bg); border-radius: 8px; }
+.sh-cal-cell.range { background: color-mix(in oklab, var(--ink) 8%, transparent); }
+.sh-cal-cell .sh-cal-day {
+  font-family: "Instrument Serif", serif;
+  font-size: 15px;
+  line-height: 1;
+}
+.sh-cal-cell .sh-cal-price {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.sh-cal-cell.sel .sh-cal-price { color: color-mix(in oklab, var(--bg) 70%, transparent); }
+.sh-cal-legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.sh-cal-legend span {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.sh-legend-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.sh-legend-dot.surge { background: color-mix(in oklab, var(--accent) 50%, transparent); }
+.sh-legend-dot.deal  { background: color-mix(in oklab, oklch(0.7 0.15 145) 50%, transparent); }
+.sh-legend-dot.normal { background: var(--line); }
+
 /* SIDEBAR FILTERS */
 .sh-filters {
   position: sticky;
@@ -933,7 +1102,7 @@
 .sh-filters-reset {
   font-size: 11px;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--ink-2);
   text-decoration: underline;
   background: none;
   border: none;
@@ -964,13 +1133,13 @@
 .sh-filter-val {
   font-size: 12px;
   font-weight: 400;
-  color: var(--muted);
+  color: var(--ink-2);
 }
 .sh-filter-range-meta {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: var(--muted);
+  color: var(--ink-2);
   font-family: var(--font-mono, "JetBrains Mono", monospace);
 }
 
@@ -1104,7 +1273,7 @@
 }
 .sh-toggle-row p {
   font-size: 11.5px;
-  color: var(--muted);
+  color: var(--ink-2);
   line-height: 1.4;
 }
 .sh-switch {

@@ -36,9 +36,10 @@ export function CatalogSidebar() {
 
   const activeAmenities = new Set(filters.amenities ? filters.amenities.split(",").filter(Boolean) : []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function apply(patch: Record<string, any>) {
-    startTransition(() => { setFilters({ ...patch, page: 1 }); });
+  function apply(patch: Partial<typeof filters>) {
+    startTransition(() => {
+      setFilters((prev) => ({ ...prev, ...patch, page: 1 }));
+    });
   }
 
   function reset() {
@@ -50,15 +51,15 @@ export function CatalogSidebar() {
 
   function applyPrice() {
     apply({
-      minPrice: priceRange[0] === 20 ? undefined : priceRange[0],
-      maxPrice: priceRange[1] === 500 ? undefined : priceRange[1],
+      minPrice: priceRange[0] === 20 ? 0 : priceRange[0],
+      maxPrice: priceRange[1] === 500 ? 0 : priceRange[1],
     });
   }
 
   function toggleAmenity(id: string) {
     const next = new Set(activeAmenities);
     if (next.has(id)) next.delete(id); else next.add(id);
-    apply({ amenities: next.size > 0 ? [...next].join(",") : undefined });
+    apply({ amenities: next.size > 0 ? [...next].join(",") : "" });
   }
 
   const hasFilters = filters.minPrice > 0 || filters.maxPrice > 0 || filters.bedrooms > 0 ||
@@ -95,7 +96,7 @@ export function CatalogSidebar() {
               <button
                 key={n}
                 className={`sh-pill ${filters.bedrooms === n ? "active" : ""}`}
-                onClick={() => apply({ bedrooms: n === 0 ? undefined : n })}
+                onClick={() => apply({ bedrooms: n })}
               >
                 {n === 0 ? "Будь-яка" : `${n}+`}
               </button>
@@ -126,13 +127,13 @@ export function CatalogSidebar() {
         <div className="sh-filter-block">
           <ToggleRow
             checked={filters.superhost === "1"}
-            onChange={(v) => apply({ superhost: v ? "1" : undefined })}
+            onChange={(v) => apply({ superhost: v ? "1" : "" })}
             title="Тільки Superhost"
             sub="Хости з 95%+ підтверджених броні"
           />
           <ToggleRow
             checked={filters.instantBook === "1"}
-            onChange={(v) => apply({ instantBook: v ? "1" : undefined })}
+            onChange={(v) => apply({ instantBook: v ? "1" : "" })}
             title="Миттєве бронювання"
             sub="Без очікування підтвердження"
           />

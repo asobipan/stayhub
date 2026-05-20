@@ -44,7 +44,13 @@ export async function getListings(query: ListingsQuery) {
 
   const where = {
     isActive: true,
-    ...(query.city && { city: { contains: query.city, mode: "insensitive" as const } }),
+    ...(query.city && {
+      OR: [
+        { city: { contains: query.city, mode: "insensitive" as const } },
+        { title: { contains: query.city, mode: "insensitive" as const } },
+        { country: { contains: query.city, mode: "insensitive" as const } },
+      ],
+    }),
     ...(query.guests && { maxGuests: { gte: parseInt(query.guests) } }),
     ...(minPrice && { price: { gte: minPrice } }),
     ...(maxPrice && { price: { lte: maxPrice } }),
