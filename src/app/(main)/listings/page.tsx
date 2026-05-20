@@ -5,6 +5,7 @@ import { ListingGridSkeleton } from "@/components/listings/ListingCardSkeleton";
 import { SearchFilters } from "@/components/listings/SearchFilters";
 import { PaginationControls } from "@/components/listings/PaginationControls";
 import { CategoryTabs } from "@/components/listings/CategoryTabs";
+import { CatalogSidebar } from "@/components/listings/CatalogSidebar";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -124,11 +125,9 @@ export default async function ListingsPage({
 
   return (
     <div className="bg-[var(--background)] min-h-screen">
-      {/* Sticky sub-header: category tabs */}
+      {/* Sticky sub-header: category tabs + search */}
       <div className="sticky top-[65px] z-40 bg-[var(--background)]">
         <CategoryTabs />
-
-        {/* Search bar */}
         <div className="border-b border-[var(--line)] bg-[var(--background)]">
           <div className="max-w-[1320px] mx-auto px-8 py-3">
             <SearchFilters />
@@ -136,11 +135,14 @@ export default async function ListingsPage({
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-[1320px] mx-auto px-8 py-8">
-        <Suspense fallback={<ListingGridSkeleton />}>
-          <ListingsResult searchParams={params} />
-        </Suspense>
+      {/* Catalog layout: sidebar + results */}
+      <div className="sh-cat-layout sh-cat-grid max-w-[1320px] mx-auto">
+        <CatalogSidebar />
+        <div className="px-8 py-8">
+          <Suspense fallback={<ListingGridSkeleton />}>
+            <ListingsResult searchParams={params} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

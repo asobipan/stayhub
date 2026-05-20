@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationControlsProps {
   page: number;
@@ -30,52 +29,46 @@ export function PaginationControls({ page, pages }: PaginationControlsProps) {
 
   return (
     <div className="flex items-center justify-center gap-1">
-      <NavButton onClick={() => navigate(page - 1)} disabled={page <= 1}>
-        <ChevronLeft className="w-4 h-4" />
-      </NavButton>
+      <NavBtn onClick={() => navigate(page - 1)} disabled={page <= 1}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 6l-6 6 6 6"/>
+        </svg>
+      </NavBtn>
 
       {withEllipsis.map((p, i) =>
         p === "..." ? (
-          <span key={`e${i}`} className="px-2 text-sm" style={{ color: "#A8A29E" }}>
-            ...
-          </span>
+          <span key={`e${i}`} className="px-2 text-[13px] text-[var(--sh-muted)]">…</span>
         ) : (
           <button
             key={p}
             onClick={() => navigate(p as number)}
-            className="w-9 h-9 rounded-lg text-sm font-medium transition-colors"
-            style={{
-              background: p === page ? "#1E1B4B" : "transparent",
-              color: p === page ? "#fff" : "#44403C",
-            }}
+            className={[
+              "w-9 h-9 rounded-lg text-[13px] font-medium transition-colors",
+              p === page
+                ? "bg-[var(--ink)] text-[var(--background)]"
+                : "text-[var(--ink-2)] hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]",
+            ].join(" ")}
           >
             {p}
           </button>
         )
       )}
 
-      <NavButton onClick={() => navigate(page + 1)} disabled={page >= pages}>
-        <ChevronRight className="w-4 h-4" />
-      </NavButton>
+      <NavBtn onClick={() => navigate(page + 1)} disabled={page >= pages}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </NavBtn>
     </div>
   );
 }
 
-function NavButton({
-  onClick,
-  disabled,
-  children,
-}: {
-  onClick: () => void;
-  disabled: boolean;
-  children: React.ReactNode;
-}) {
+function NavBtn({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-[#F5F4F0]"
-      style={{ color: disabled ? "#C4BFBA" : "#44403C" }}
+      className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--bg-alt)] disabled:opacity-30 disabled:pointer-events-none text-[var(--ink-2)]"
     >
       {children}
     </button>

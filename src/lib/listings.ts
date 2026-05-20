@@ -7,6 +7,11 @@ export interface ListingsQuery {
   guests?: string;
   minPrice?: string;
   maxPrice?: string;
+  bedrooms?: string;
+  superhost?: string;
+  instantBook?: string;
+  amenities?: string;
+  sort?: string;
   page?: string;
 }
 
@@ -32,19 +37,33 @@ export async function getListings(query: ListingsQuery) {
     excludedListingIds = conflicting.map((b) => b.listingId);
   }
 
+  const minPrice = query.minPrice ? parseFloat(query.minPrice) : undefined;
+  const maxPrice = query.maxPrice ? parseFloat(query.maxPrice) : undefined;
+  const bedroomsMin = query.bedrooms ? parseInt(query.bedrooms) : undefined;
+  const amenityList = query.amenities ? query.amenities.split(",").filter(Boolean) : [];
+
   const where = {
     isActive: true,
     ...(query.city && { city: { contains: query.city, mode: "insensitive" as const } }),
     ...(query.guests && { maxGuests: { gte: parseInt(query.guests) } }),
-    ...(query.minPrice && { price: { gte: parseFloat(query.minPrice) } }),
-    ...(query.maxPrice && { price: { lte: parseFloat(query.maxPrice) } }),
+    ...(minPrice && { price: { gte: minPrice } }),
+    ...(maxPrice && { price: { lte: maxPrice } }),
+    ...(bedroomsMin && { bedrooms: { gte: bedroomsMin } }),
+    ...(query.superhost === "1" && { host: { role: "HOST" as const } }),
+    ...(amenityList.length > 0 && { amenities: { hasEvery: amenityList } }),
     ...(excludedListingIds.length > 0 && { id: { notIn: excludedListingIds } }),
   };
+
+  const orderBy =
+    query.sort === "price-asc"  ? [{ price: "asc" as const }] :
+    query.sort === "price-desc" ? [{ price: "desc" as const }] :
+    query.sort === "rating"     ? [{ avgRating: "desc" as const }] :
+    [{ avgRating: "desc" as const }, { createdAt: "desc" as const }];
 
   const [listings, total] = await Promise.all([
     db.listing.findMany({
       where,
-      orderBy: [{ avgRating: "desc" }, { createdAt: "desc" }],
+      orderBy,
       skip,
       take: LIMIT,
       select: {
