@@ -22,11 +22,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  listings Listing[]
-  bookings Booking[]
-  reviews  Review[]
+  accounts      Account[]
+  sessions      Session[]
+  listings      Listing[]
+  bookings      Booking[]
+  reviews       Review[]
+  savedListings SavedListing[]
 }
 
 model Account {
@@ -86,10 +87,23 @@ model Listing {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  hostId   String
-  host     User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
-  bookings Booking[]
-  reviews  Review[]
+  hostId        String
+  host          User           @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  bookings      Booking[]
+  reviews       Review[]
+  savedByUsers  SavedListing[]
+}
+
+model SavedListing {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
 }
 
 model Booking {

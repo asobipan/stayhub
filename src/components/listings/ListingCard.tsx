@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { HeartIcon, HeartFillIcon, StarFillIcon, PinIcon } from "@/components/ui/icons";
 
 export interface ListingCardProps {
@@ -23,16 +23,28 @@ export interface ListingCardProps {
   aspectClass?: string;
   superhost?: boolean;
   instantBook?: boolean;
+  initialSaved?: boolean;
 }
 
 export function ListingCard({
   id, title, city, country, price, images,
   bedrooms, avgRating, reviewCount,
   index, layoutClass = "", aspectClass = "aspect-[4/3]", superhost, instantBook,
+  initialSaved = false,
 }: ListingCardProps) {
   const [photoIdx, setPhotoIdx] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(initialSaved);
   const photoCount = images.length;
+
+  const toggleSaved = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLiked((v) => !v);
+    await fetch("/api/saved", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listingId: id }),
+    });
+  }, [id]);
 
   const navPhoto = (e: React.MouseEvent, dir: number) => {
     e.preventDefault();
@@ -85,7 +97,7 @@ export function ListingCard({
 
         {/* Wishlist button */}
         <button
-          onClick={(e) => { e.preventDefault(); setLiked((v) => !v); }}
+          onClick={toggleSaved}
           aria-label="Зберегти"
           className={[
             "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110",
