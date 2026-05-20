@@ -8,6 +8,7 @@ import { ImageGallery } from "@/components/listings/ImageGallery";
 import { AmenitiesList } from "@/components/listings/AmenitiesList";
 import { BookingWidget } from "@/components/listings/BookingWidget";
 import { LeaveReviewButton } from "@/components/reviews/LeaveReviewButton";
+import { ListingCard } from "@/components/listings/ListingCard";
 import {
   StarFillIcon,
   PinIcon,
@@ -68,6 +69,25 @@ export default async function ListingDetailPage({ params }: Props) {
   ]);
 
   if (!listing) notFound();
+
+  const relatedSameCity = await db.listing.findMany({
+    where: { id: { not: id }, isActive: true, city: listing.city },
+    take: 4,
+    orderBy: { avgRating: "desc" },
+    select: {
+      id: true, title: true, city: true, country: true, price: true,
+      images: true, bedrooms: true, avgRating: true, reviewCount: true,
+    },
+  });
+  const related = relatedSameCity.length >= 4 ? relatedSameCity : await db.listing.findMany({
+    where: { id: { not: id }, isActive: true },
+    take: 4,
+    orderBy: { avgRating: "desc" },
+    select: {
+      id: true, title: true, city: true, country: true, price: true,
+      images: true, bedrooms: true, avgRating: true, reviewCount: true,
+    },
+  });
 
   const isOwner = session?.user?.id === listing.hostId;
   const isAuthenticated = !!session?.user;
@@ -350,12 +370,37 @@ export default async function ListingDetailPage({ params }: Props) {
           </aside>
         </div>
 
-        {/* Related listings link */}
-        <div style={{ marginTop: 56, paddingTop: 40, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "flex-end" }}>
-          <Link href="/listings" className="sh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            Схожі помешкання <ArrowIcon size={13} />
-          </Link>
-        </div>
+        {/* Related listings */}
+        {related.length > 0 && (
+          <section className="sh-block sh-related" style={{ borderBottom: "none", marginBottom: 0 }}>
+            <div className="sh-section-head">
+              <h3 className="sh-section-title-sm">
+                Схожі помешкання<br />
+                <em>поруч</em>
+              </h3>
+              <Link href="/listings" className="sh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                Всі поблизу <ArrowIcon size={13} />
+              </Link>
+            </div>
+            <div className="sh-results-grid wide">
+              {related.map((item, i) => (
+                <ListingCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  city={item.city}
+                  country={item.country}
+                  price={item.price}
+                  images={item.images}
+                  bedrooms={item.bedrooms}
+                  avgRating={item.avgRating}
+                  reviewCount={item.reviewCount}
+                  index={i}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
       </div>
     </div>
