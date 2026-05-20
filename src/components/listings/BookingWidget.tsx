@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Star, Users, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import { StarFillIcon } from "@/components/ui/icons";
 
 interface BookingWidgetProps {
   listingId: string;
@@ -42,20 +42,19 @@ export function BookingWidget({
       : 0;
 
   const subtotal = nights * price;
-  const serviceFee = Math.round(subtotal * 0.12);
-  const total = subtotal + serviceFee;
+  const cleaningFee = 35;
+  const serviceFee = Math.round(subtotal * 0.08);
+  const total = subtotal + cleaningFee + serviceFee;
 
   async function handleBook() {
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
-
     if (!checkIn || !checkOut) {
       toast.error("Оберіть дати заїзду та виїзду");
       return;
     }
-
     if (nights <= 0) {
       toast.error("Дата виїзду має бути після дати заїзду");
       return;
@@ -68,14 +67,11 @@ export function BookingWidget({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingId, checkIn, checkOut, guests }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         toast.error(data.error || "Помилка бронювання");
         return;
       }
-
       router.push(`/bookings/${data.id}/payment`);
     } catch {
       toast.error("Помилка мережі. Спробуйте ще раз.");
@@ -84,171 +80,142 @@ export function BookingWidget({
     }
   }
 
+  const btnLabel = isLoading
+    ? "Обробка..."
+    : !isAuthenticated
+    ? "Увійдіть для бронювання"
+    : !checkIn || !checkOut
+    ? "Оберіть дати"
+    : "Забронювати";
+
   return (
-    <div
-      className="sticky top-24 rounded-2xl border p-6"
-      style={{
-        background: "#fff",
-        borderColor: "#E7E5E0",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-      }}
-    >
-      {/* Price header */}
-      <div className="flex items-baseline justify-between mb-5">
-        <div>
-          <span
-            className="text-2xl font-bold"
-            style={{ fontFamily: "var(--font-heading)", color: "#1E1B4B" }}
-          >
-            ${price}
-          </span>
-          <span className="text-sm ml-1" style={{ color: "#78716C" }}>
-            / ніч
-          </span>
+    <div className="sh-booking-wrap">
+      <div className="sh-booking">
+        {/* Price + rating */}
+        <div className="sh-booking-head">
+          <div>
+            <span className="sh-booking-price">${price}</span>
+            <span className="sh-booking-unit"> / ніч</span>
+          </div>
+          {reviewCount > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13 }}>
+              <StarFillIcon size={13} className="text-[var(--accent)]" />
+              <strong style={{ color: "var(--ink)" }}>{avgRating.toFixed(2)}</strong>
+              <span style={{ color: "var(--muted)" }}>· {reviewCount}</span>
+            </div>
+          )}
         </div>
 
-        {reviewCount > 0 && (
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4" style={{ fill: "#F59E0B", color: "#F59E0B" }} />
-            <span className="text-sm font-semibold" style={{ color: "#1C1917" }}>
-              {avgRating.toFixed(1)}
-            </span>
-            <span className="text-xs" style={{ color: "#A8A29E" }}>
-              ({reviewCount})
-            </span>
+        {/* Dates + guests form */}
+        <div className="sh-booking-form">
+          <div className="sh-booking-dates">
+            <div className="sh-booking-date" style={{ borderRight: "1px solid var(--line)" }}>
+              <label>Заїзд</label>
+              <input
+                type="date"
+                value={checkIn}
+                min={today}
+                onChange={(e) => {
+                  setCheckIn(e.target.value);
+                  if (checkOut && e.target.value >= checkOut) setCheckOut("");
+                }}
+                style={{
+                  fontSize: 13,
+                  color: checkIn ? "var(--ink)" : "var(--muted)",
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  width: "100%",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              />
+            </div>
+            <div className="sh-booking-date">
+              <label>Виїзд</label>
+              <input
+                type="date"
+                value={checkOut}
+                min={checkIn || today}
+                onChange={(e) => setCheckOut(e.target.value)}
+                style={{
+                  fontSize: 13,
+                  color: checkOut ? "var(--ink)" : "var(--muted)",
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  width: "100%",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              />
+            </div>
           </div>
+
+          <div className="sh-booking-guests">
+            <label>Гості</label>
+            <div className="sh-stepper">
+              <button onClick={() => setGuests((g) => Math.max(1, g - 1))}>
+                <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+                  <path d="M5 12h14" />
+                </svg>
+              </button>
+              <span>{guests} {guests === 1 ? "гість" : "гост."}</span>
+              <button onClick={() => setGuests((g) => Math.min(maxGuests, g + 1))}>
+                <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <button
+          className="sh-btn sh-btn-primary sh-btn-block"
+          onClick={handleBook}
+          disabled={isLoading}
+          style={{ marginBottom: 12 }}
+        >
+          {btnLabel}
+        </button>
+
+        <p className="sh-booking-note">Вас не спишуть до підтвердження.</p>
+
+        {/* Price breakdown */}
+        {nights > 0 && (
+          <ul className="sh-booking-breakdown">
+            <li>
+              <span>
+                <u>${price}</u> × {nights} {nights === 1 ? "ніч" : nights < 5 ? "ночі" : "ночей"}
+              </span>
+              <span>${subtotal}</span>
+            </li>
+            <li>
+              <span>Прибирання</span>
+              <span>${cleaningFee}</span>
+            </li>
+            <li>
+              <span>Сервісний збір</span>
+              <span>${serviceFee}</span>
+            </li>
+            <li className="sh-booking-total">
+              <span>Разом</span>
+              <span>${total}</span>
+            </li>
+          </ul>
         )}
       </div>
 
-      {/* Date pickers */}
-      <div
-        className="grid grid-cols-2 rounded-xl border overflow-hidden mb-3"
-        style={{ borderColor: "#E7E5E0" }}
-      >
-        <div
-          className="px-4 py-3 border-r"
-          style={{ borderColor: "#E7E5E0" }}
-        >
-          <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#44403C" }}>
-            Заїзд
-          </label>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 shrink-0" style={{ color: "#312E81" }} />
-            <input
-              type="date"
-              value={checkIn}
-              min={today}
-              onChange={(e) => {
-                setCheckIn(e.target.value);
-                if (checkOut && e.target.value >= checkOut) setCheckOut("");
-              }}
-              className="text-sm w-full outline-none bg-transparent cursor-pointer"
-              style={{ color: checkIn ? "#1C1917" : "#A8A29E" }}
-            />
-          </div>
-        </div>
-        <div className="px-4 py-3">
-          <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#44403C" }}>
-            Виїзд
-          </label>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 shrink-0" style={{ color: "#312E81" }} />
-            <input
-              type="date"
-              value={checkOut}
-              min={checkIn || today}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="text-sm w-full outline-none bg-transparent cursor-pointer"
-              style={{ color: checkOut ? "#1C1917" : "#A8A29E" }}
-            />
-          </div>
-        </div>
+      <div className="sh-rare-note">
+        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2c2 3 6 4 6 8a6 6 0 01-12 0c0-4 4-5 6-8z" />
+          <path d="M12 12v4M12 18h.01" />
+        </svg>
+        <p>
+          <strong>Рідко вільне.</strong> Це помешкання дуже популярне в цьому сезоні.
+        </p>
       </div>
-
-      {/* Guests */}
-      <div
-        className="flex items-center justify-between px-4 py-3 rounded-xl border mb-4"
-        style={{ borderColor: "#E7E5E0" }}
-      >
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4" style={{ color: "#312E81" }} />
-          <span className="text-sm font-medium" style={{ color: "#44403C" }}>
-            Гості
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setGuests((g) => Math.max(1, g - 1))}
-            className="w-7 h-7 rounded-full border flex items-center justify-center text-sm transition-colors hover:bg-[#F5F4F0]"
-            style={{ borderColor: "#E7E5E0", color: "#44403C" }}
-          >
-            −
-          </button>
-          <span className="text-sm font-semibold w-4 text-center" style={{ color: "#1C1917" }}>
-            {guests}
-          </span>
-          <button
-            onClick={() => setGuests((g) => Math.min(maxGuests, g + 1))}
-            className="w-7 h-7 rounded-full border flex items-center justify-center text-sm transition-colors hover:bg-[#F5F4F0]"
-            style={{ borderColor: "#E7E5E0", color: "#44403C" }}
-          >
-            +
-          </button>
-        </div>
-      </div>
-
-      {/* Book button */}
-      <button
-        onClick={handleBook}
-        disabled={isLoading}
-        className="w-full py-3.5 rounded-xl text-sm font-semibold transition-all duration-150 mb-4"
-        style={{
-          background: isLoading ? "#312E81cc" : "#1E1B4B",
-          color: "#fff",
-          letterSpacing: "0.01em",
-        }}
-        onMouseEnter={(e) => {
-          if (!isLoading) (e.target as HTMLButtonElement).style.background = "#312E81";
-        }}
-        onMouseLeave={(e) => {
-          if (!isLoading) (e.target as HTMLButtonElement).style.background = "#1E1B4B";
-        }}
-      >
-        {isLoading
-          ? "Обробка..."
-          : !isAuthenticated
-          ? "Увійдіть для бронювання"
-          : !checkIn || !checkOut
-          ? "Оберіть дати"
-          : "Забронювати"}
-      </button>
-
-      {/* Price breakdown */}
-      {nights > 0 && (
-        <div className="space-y-2 text-sm border-t pt-4" style={{ borderColor: "#F0EDE6" }}>
-          <div className="flex justify-between" style={{ color: "#44403C" }}>
-            <span>
-              ${price} × {nights} {nights === 1 ? "ніч" : nights < 5 ? "ночі" : "ночей"}
-            </span>
-            <span>${subtotal}</span>
-          </div>
-          <div className="flex justify-between" style={{ color: "#44403C" }}>
-            <span>Сервісний збір</span>
-            <span>${serviceFee}</span>
-          </div>
-          <div
-            className="flex justify-between font-semibold pt-2 border-t"
-            style={{ borderColor: "#F0EDE6", color: "#1C1917" }}
-          >
-            <span>Разом</span>
-            <span>${total}</span>
-          </div>
-        </div>
-      )}
-
-      <p className="text-xs text-center mt-3" style={{ color: "#A8A29E" }}>
-        З вас не стягнеться плата до підтвердження
-      </p>
     </div>
   );
 }

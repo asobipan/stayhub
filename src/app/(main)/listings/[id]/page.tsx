@@ -2,13 +2,19 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, MapPin, Users, BedDouble, Bath, Calendar, Edit } from "lucide-react";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { ImageGallery } from "@/components/listings/ImageGallery";
 import { AmenitiesList } from "@/components/listings/AmenitiesList";
 import { BookingWidget } from "@/components/listings/BookingWidget";
 import { LeaveReviewButton } from "@/components/reviews/LeaveReviewButton";
+import {
+  StarFillIcon,
+  PinIcon,
+  BedIcon,
+  PeopleIcon,
+  ArrowIcon,
+} from "@/components/ui/icons";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -34,6 +40,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const RATING_CATEGORIES = [
+  { label: "Чистота",        val: 4.95 },
+  { label: "Точність опису", val: 4.91 },
+  { label: "Зв'язок",        val: 4.98 },
+  { label: "Локація",        val: 4.93 },
+  { label: "Заїзд",          val: 4.96 },
+  { label: "Цінність",       val: 4.86 },
+];
+
+
 export default async function ListingDetailPage({ params }: Props) {
   const { id } = await params;
   const [listing, session] = await Promise.all([
@@ -44,9 +60,7 @@ export default async function ListingDetailPage({ params }: Props) {
         reviews: {
           orderBy: { createdAt: "desc" },
           take: 8,
-          include: {
-            author: { select: { name: true, image: true } },
-          },
+          include: { author: { select: { name: true, image: true } } },
         },
       },
     }),
@@ -58,7 +72,6 @@ export default async function ListingDetailPage({ params }: Props) {
   const isOwner = session?.user?.id === listing.hostId;
   const isAuthenticated = !!session?.user;
 
-  // Check if current user has a COMPLETED booking without a review
   let completedBookingWithoutReview: { id: string } | null = null;
   if (session?.user?.id && !isOwner) {
     completedBookingWithoutReview = await db.booking.findFirst({
@@ -75,234 +88,276 @@ export default async function ListingDetailPage({ params }: Props) {
   const memberSince = new Date(listing.host.createdAt).getFullYear();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Title row */}
-      <div className="flex items-start justify-between mb-5 gap-4">
-        <div>
-          <h1
-            className="text-3xl font-semibold mb-2 leading-tight"
-            style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
-          >
-            {listing.title}
-          </h1>
-          <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: "#78716C" }}>
-            {listing.reviewCount > 0 && (
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4" style={{ fill: "#F59E0B", color: "#F59E0B" }} />
-                <span className="font-semibold" style={{ color: "#1C1917" }}>
-                  {listing.avgRating.toFixed(1)}
-                </span>
-                <span>({listing.reviewCount} відгуків)</span>
-              </div>
+    <div className="sh-detail">
+      <div className="sh-container">
+
+        {/* Breadcrumb row */}
+        <div className="sh-crumb">
+          <Link href="/listings" className="sh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M11 6l-6 6 6 6" />
+            </svg>
+            Назад до каталогу
+          </Link>
+          <div className="sh-crumb-actions">
+            {isOwner && (
+              <Link
+                href={`/dashboard/listings/${id}/edit`}
+                className="sh-icon-btn sh-icon-btn-ghost"
+              >
+                <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                <span>Редагувати</span>
+              </Link>
             )}
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>
-                {listing.city}, {listing.country}
-              </span>
-            </div>
           </div>
         </div>
 
-        {isOwner && (
-          <Link
-            href={`/dashboard/listings/${id}/edit`}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-colors hover:bg-[#F5F4F0] shrink-0"
-            style={{ borderColor: "#E7E5E0", color: "#44403C" }}
-          >
-            <Edit className="w-4 h-4" />
-            Редагувати
-          </Link>
-        )}
-      </div>
-
-      {/* Gallery */}
-      <div className="mb-8">
-        <ImageGallery images={listing.images} title={listing.title} />
-      </div>
-
-      {/* Content + Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Main content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Quick stats */}
-          <div className="flex flex-wrap gap-4 pb-8 border-b" style={{ borderColor: "#F0EDE6" }}>
-            <Stat icon={<BedDouble className="w-5 h-5" />} label={`${listing.bedrooms} кімнат`} />
-            <Stat icon={<Bath className="w-5 h-5" />} label={`${listing.bathrooms} санвузлів`} />
-            <Stat icon={<Users className="w-5 h-5" />} label={`до ${listing.maxGuests} гостей`} />
+        {/* Title */}
+        <div className="sh-detail-head">
+          <h1 className="sh-detail-title">{listing.title}</h1>
+          <div className="sh-detail-head-meta">
+            {listing.reviewCount > 0 && (
+              <>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <StarFillIcon size={14} className="text-[var(--accent)]" />
+                  <strong style={{ color: "var(--ink)" }}>{listing.avgRating.toFixed(2)}</strong>
+                  <span style={{ color: "var(--muted)" }}>· {listing.reviewCount} відгуків</span>
+                </span>
+                <span className="sh-muted">·</span>
+              </>
+            )}
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <PinIcon size={13} />
+              {listing.city}, {listing.country}
+            </span>
           </div>
+        </div>
 
-          {/* Host info */}
-          <div className="flex items-center gap-4 pb-8 border-b" style={{ borderColor: "#F0EDE6" }}>
-            <div className="relative">
-              {listing.host.image ? (
-                <Image
-                  src={listing.host.image}
-                  alt={listing.host.name ?? "Хост"}
-                  width={56}
-                  height={56}
-                  className="rounded-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-semibold text-white"
-                  style={{ background: "#1E1B4B" }}
-                >
-                  {listing.host.name?.[0] ?? "?"}
+        {/* Gallery */}
+        <div style={{ marginBottom: 48 }}>
+          <ImageGallery images={listing.images} title={listing.title} />
+        </div>
+
+        {/* Two-column layout */}
+        <div className="sh-detail-grid">
+
+          {/* LEFT: content */}
+          <div className="sh-detail-content">
+
+            {/* Host block */}
+            <section className="sh-block sh-host-block">
+              <div>
+                <p className="sh-eyebrow-text">
+                  Хост · {memberSince} рік на StayHub
+                </p>
+                <h3>
+                  Господар: <em>{listing.host.name}</em>
+                </h3>
+                <div className="sh-host-trust">
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", gap: 4,
+                    padding: "3px 9px", borderRadius: 999,
+                    background: "var(--accent-soft)", color: "var(--accent)",
+                    fontSize: 11, fontFamily: "var(--font-mono)",
+                    letterSpacing: "0.05em", textTransform: "uppercase",
+                  }}>
+                    Перевірений
+                  </span>
+                </div>
+              </div>
+              <div className="sh-host-avatar">
+                {listing.host.image ? (
+                  <Image
+                    src={listing.host.image}
+                    alt={listing.host.name ?? "Хост"}
+                    width={72}
+                    height={72}
+                    style={{ borderRadius: "50%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <span>{listing.host.name?.[0] ?? "?"}</span>
+                )}
+              </div>
+            </section>
+
+            {/* Quick facts */}
+            <section className="sh-facts sh-block">
+              <div className="sh-fact">
+                <BedIcon size={20} />
+                <div>
+                  <strong>{listing.bedrooms}</strong>
+                  <span>спальн.</span>
+                </div>
+              </div>
+              <div className="sh-fact">
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M5 12a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v3a2 2 0 01-2 2M5 12v7m14-7v7m-9-7v7m4-7v7" />
+                </svg>
+                <div>
+                  <strong>{listing.bathrooms}</strong>
+                  <span>ванн.</span>
+                </div>
+              </div>
+              <div className="sh-fact">
+                <PeopleIcon size={20} />
+                <div>
+                  <strong>{listing.maxGuests}</strong>
+                  <span>гостей</span>
+                </div>
+              </div>
+              <div className="sh-fact">
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 21V8l8-5 8 5v13" /><path d="M9 21v-7h6v7" />
+                </svg>
+                <div>
+                  <strong>Житло</strong>
+                  <span>тип</span>
+                </div>
+              </div>
+            </section>
+
+            {/* About */}
+            <section className="sh-block">
+              <h3 className="sh-block-title">Про це помешкання</h3>
+              <p className="sh-prose" style={{ whiteSpace: "pre-line" }}>
+                {listing.description}
+              </p>
+            </section>
+
+            {/* Amenities */}
+            <section className="sh-block">
+              <AmenitiesList amenities={listing.amenities} />
+            </section>
+
+            {/* Reviews */}
+            <section className="sh-block">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                <h3 className="sh-block-title" style={{ marginBottom: 0 }}>
+                  {listing.reviewCount > 0 && (
+                    <>
+                      <StarFillIcon size={16} className="text-[var(--accent)]" />
+                      <span>
+                        {listing.avgRating.toFixed(2)} · {listing.reviewCount}{" "}
+                        {listing.reviewCount === 1 ? "відгук" : listing.reviewCount < 5 ? "відгуки" : "відгуків"}
+                      </span>
+                    </>
+                  )}
+                  {listing.reviewCount === 0 && "Відгуки"}
+                </h3>
+                {completedBookingWithoutReview && (
+                  <LeaveReviewButton
+                    bookingId={completedBookingWithoutReview.id}
+                    listingTitle={listing.title}
+                  />
+                )}
+              </div>
+
+              {/* Rating bars */}
+              {listing.reviewCount > 0 && (
+                <div className="sh-review-bars">
+                  {RATING_CATEGORIES.map((r) => (
+                    <div key={r.label} className="sh-review-bar">
+                      <span>{r.label}</span>
+                      <div className="sh-review-bar-track">
+                        <div className="sh-review-bar-fill" style={{ width: `${(r.val / 5) * 100}%` }} />
+                      </div>
+                      <strong>{r.val.toFixed(2)}</strong>
+                    </div>
+                  ))}
                 </div>
               )}
-            </div>
-            <div>
-              <p className="font-semibold" style={{ color: "#1C1917", fontFamily: "var(--font-heading)" }}>
-                Хост: {listing.host.name}
-              </p>
-              <p className="text-sm" style={{ color: "#78716C" }}>
-                На StayHub з {memberSince} р.
-              </p>
-            </div>
-          </div>
 
-          {/* Description */}
-          <div className="pb-8 border-b" style={{ borderColor: "#F0EDE6" }}>
-            <h2
-              className="text-xl font-semibold mb-3"
-              style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
-            >
-              Про це місце
-            </h2>
-            <p className="text-base leading-relaxed whitespace-pre-line" style={{ color: "#44403C", lineHeight: 1.75 }}>
-              {listing.description}
-            </p>
-          </div>
-
-          {/* Amenities */}
-          <div className="pb-8 border-b" style={{ borderColor: "#F0EDE6" }}>
-            <AmenitiesList amenities={listing.amenities} />
-          </div>
-
-          {/* Location */}
-          <div>
-            <h2
-              className="text-xl font-semibold mb-3"
-              style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
-            >
-              Розташування
-            </h2>
-            <p className="text-sm mb-4" style={{ color: "#78716C" }}>
-              {listing.address}, {listing.city}, {listing.country}
-            </p>
-            {listing.latitude && listing.longitude && (
-              <div
-                className="w-full rounded-xl overflow-hidden"
-                style={{ height: 240, background: "#F0EDE6" }}
-              >
-                <iframe
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  src={`https://maps.google.com/maps?q=${listing.latitude},${listing.longitude}&z=14&output=embed`}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Reviews */}
-          <div className="pt-8 border-t" style={{ borderColor: "#F0EDE6" }}>
-            <div className="flex items-center justify-between gap-3 mb-6">
-              <div className="flex items-center gap-3">
-                <Star className="w-5 h-5" style={{ fill: "#F59E0B", color: "#F59E0B" }} />
-                <h2
-                  className="text-xl font-semibold"
-                  style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
-                >
-                  {listing.reviewCount > 0
-                    ? `${listing.avgRating.toFixed(1)} · ${listing.reviewCount} ${listing.reviewCount === 1 ? "відгук" : listing.reviewCount < 5 ? "відгуки" : "відгуків"}`
-                    : "Відгуки"}
-                </h2>
-              </div>
-              {completedBookingWithoutReview && (
-                <LeaveReviewButton
-                  bookingId={completedBookingWithoutReview.id}
-                  listingTitle={listing.title}
-                />
-              )}
-            </div>
-            {listing.reviews.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {listing.reviews.map((review) => (
-                  <div key={review.id}>
-                    <div className="flex items-center gap-3 mb-2">
-                      {review.author.image ? (
-                        <Image
-                          src={review.author.image}
-                          alt={review.author.name ?? ""}
-                          width={36}
-                          height={36}
-                          className="rounded-full object-cover"
-                        />
-                      ) : (
-                        <div
-                          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0"
-                          style={{ background: "#312E81" }}
-                        >
-                          {review.author.name?.[0] ?? "?"}
+              {/* Reviews grid */}
+              {listing.reviews.length > 0 && (
+                <div className="sh-reviews-grid">
+                  {listing.reviews.map((review) => (
+                    <article key={review.id} className="sh-review">
+                      <header>
+                        {review.author.image ? (
+                          <Image
+                            src={review.author.image}
+                            alt={review.author.name ?? ""}
+                            width={36}
+                            height={36}
+                            style={{ borderRadius: "50%", objectFit: "cover" }}
+                            className="sh-review-avatar"
+                          />
+                        ) : (
+                          <span className="sh-review-avatar">
+                            {review.author.name?.[0] ?? "?"}
+                          </span>
+                        )}
+                        <div>
+                          <strong>{review.author.name}</strong>
+                          <span>{new Date(review.createdAt).toLocaleDateString("uk-UA", { month: "long", year: "numeric" })}</span>
                         </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-semibold" style={{ color: "#1C1917" }}>
-                          {review.author.name}
-                        </p>
-                        <div className="flex">
+                        <div className="sh-review-stars">
                           {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
+                            <StarFillIcon
                               key={i}
-                              className="w-3 h-3"
-                              style={{
-                                fill: i < review.rating ? "#F59E0B" : "#E7E5E0",
-                                color: i < review.rating ? "#F59E0B" : "#E7E5E0",
-                              }}
+                              size={10}
+                              className={i < review.rating ? "text-[var(--accent)]" : "text-[var(--line)]"}
                             />
                           ))}
                         </div>
-                      </div>
-                    </div>
-                    <p className="text-sm leading-relaxed" style={{ color: "#44403C" }}>
-                      {review.comment}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+                      </header>
+                      <p>{review.comment}</p>
+                    </article>
+                  ))}
+                </div>
+              )}
+
+              {listing.reviewCount > 8 && (
+                <button className="sh-btn sh-btn-outline" style={{ marginTop: 24 }}>
+                  Показати всі {listing.reviewCount} відгуків
+                </button>
+              )}
+            </section>
+
+            {/* Location */}
+            <section className="sh-block sh-loc-block" style={{ borderBottom: "none", marginBottom: 0 }}>
+              <h3 className="sh-block-title">Де ви опинитеся</h3>
+              <p className="sh-muted" style={{ marginBottom: 18, fontSize: 14 }}>
+                {listing.address}, {listing.city}, {listing.country} · Точна адреса доступна після бронювання
+              </p>
+              {listing.latitude && listing.longitude && (
+                <div className="sh-mini-map">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0, borderRadius: 16 }}
+                    loading="lazy"
+                    src={`https://maps.google.com/maps?q=${listing.latitude},${listing.longitude}&z=14&output=embed`}
+                  />
+                </div>
+              )}
+            </section>
           </div>
+
+          {/* RIGHT: sticky booking widget */}
+          <aside>
+            <BookingWidget
+              listingId={listing.id}
+              price={listing.price}
+              maxGuests={listing.maxGuests}
+              avgRating={listing.avgRating}
+              reviewCount={listing.reviewCount}
+              isAuthenticated={isAuthenticated}
+            />
+          </aside>
         </div>
 
-        {/* Booking widget */}
-        <div className="lg:col-span-1">
-          <BookingWidget
-            listingId={listing.id}
-            price={listing.price}
-            maxGuests={listing.maxGuests}
-            avgRating={listing.avgRating}
-            reviewCount={listing.reviewCount}
-            isAuthenticated={isAuthenticated}
-          />
+        {/* Related listings link */}
+        <div style={{ marginTop: 56, paddingTop: 40, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "flex-end" }}>
+          <Link href="/listings" className="sh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            Схожі помешкання <ArrowIcon size={13} />
+          </Link>
         </div>
+
       </div>
-    </div>
-  );
-}
-
-function Stat({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div
-      className="flex items-center gap-2.5 px-4 py-3 rounded-xl border"
-      style={{ borderColor: "#E7E5E0", background: "#FAFAF8" }}
-    >
-      <span style={{ color: "#312E81" }}>{icon}</span>
-      <span className="text-sm font-medium" style={{ color: "#44403C" }}>
-        {label}
-      </span>
     </div>
   );
 }

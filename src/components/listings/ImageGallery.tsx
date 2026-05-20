@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X, Grid2X2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, LayoutGrid } from "lucide-react";
 
 interface ImageGalleryProps {
   images: string[];
@@ -14,14 +14,13 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
   if (images.length === 0) {
     return (
-      <div
-        className="w-full rounded-2xl flex items-center justify-center"
-        style={{ height: 400, background: "#F0EDE6" }}
-      >
-        <svg viewBox="0 0 24 24" className="w-16 h-16" fill="none" stroke="#C4BFBA" strokeWidth="1">
-          <path d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z" />
-          <path d="M9 21V12h6v9" />
-        </svg>
+      <div className="sh-gallery" style={{ gridTemplateColumns: "1fr", height: 420, borderRadius: 16, overflow: "hidden", background: "var(--surface-2)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+          <svg viewBox="0 0 24 24" style={{ width: 56, height: 56, color: "var(--line-2)" }} fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z" />
+            <path d="M9 21V12h6v9" />
+          </svg>
+        </div>
       </div>
     );
   }
@@ -31,98 +30,109 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
   return (
     <>
-      {/* Gallery grid */}
-      <div className="grid grid-cols-4 grid-rows-2 gap-2 rounded-2xl overflow-hidden" style={{ height: 460 }}>
+      <div className="sh-gallery">
         {/* Main image */}
-        <div
-          className="col-span-2 row-span-2 relative cursor-pointer group"
-          onClick={() => setLightboxIndex(0)}
-        >
-          <Image src={main} alt={title} fill className="object-cover group-hover:brightness-95 transition-all" />
+        <div className="sh-gallery-main" onClick={() => setLightboxIndex(0)} style={{ cursor: "pointer" }}>
+          <Image src={main} alt={title} fill style={{ objectFit: "cover" }} />
+          <div className="sh-gallery-counter">{images.length} фото</div>
         </div>
 
-        {/* Side images */}
-        {side.map((img, i) => (
-          <div
-            key={i}
-            className="relative cursor-pointer group"
-            onClick={() => setLightboxIndex(i + 1)}
-          >
-            <Image src={img} alt={`${title} ${i + 2}`} fill className="object-cover group-hover:brightness-95 transition-all" />
-
-            {/* Show more button on last visible image */}
-            {i === 3 && images.length > 5 && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <button
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium"
-                  style={{ background: "rgba(255,255,255,0.9)", color: "#1C1917" }}
-                >
-                  <Grid2X2 className="w-4 h-4" />
-                  +{images.length - 5}
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
-
-        {/* Fill empty slots */}
-        {side.length < 4 &&
-          Array.from({ length: 4 - side.length }).map((_, i) => (
-            <div key={`empty-${i}`} style={{ background: "#F0EDE6" }} />
+        {/* Side thumbnails */}
+        <div className="sh-gallery-side">
+          {side.map((img, i) => (
+            <button
+              key={i}
+              className={`sh-gal-thumb ${i === 0 ? "active" : ""}`}
+              onClick={() => setLightboxIndex(i + 1)}
+            >
+              <Image src={img} alt={`${title} ${i + 2}`} fill style={{ objectFit: "cover" }} />
+              {i === 3 && images.length > 5 && (
+                <span className="sh-gal-thumb-more">+{images.length - 5}</span>
+              )}
+            </button>
           ))}
+
+          {/* Fill empty slots */}
+          {side.length < 4 &&
+            Array.from({ length: 4 - side.length }).map((_, i) => (
+              <div key={`empty-${i}`} style={{ background: "var(--surface-2)", borderRadius: 8 }} />
+            ))}
+
+          <button className="sh-gal-all" onClick={() => setLightboxIndex(0)}>
+            <LayoutGrid size={13} strokeWidth={1.8} />
+            Всі {images.length} фото
+          </button>
+        </div>
       </div>
 
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.92)" }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 200,
+            background: "rgba(0,0,0,0.94)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
           onClick={() => setLightboxIndex(null)}
         >
           <button
-            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.15)" }}
+            style={{
+              position: "absolute", top: 20, right: 20,
+              width: 40, height: 40, borderRadius: "50%",
+              background: "rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#fff",
+            }}
             onClick={() => setLightboxIndex(null)}
           >
-            <X className="w-5 h-5 text-white" />
+            <X size={18} />
           </button>
 
           <button
-            className="absolute left-4 w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.15)" }}
+            style={{
+              position: "absolute", left: 20,
+              width: 40, height: 40, borderRadius: "50%",
+              background: "rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#fff",
+            }}
             onClick={(e) => {
               e.stopPropagation();
               setLightboxIndex((i) => (i! > 0 ? i! - 1 : images.length - 1));
             }}
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft size={20} />
           </button>
 
           <div
-            className="relative"
-            style={{ width: "min(90vw, 1000px)", height: "min(80vh, 700px)" }}
+            style={{ position: "relative", width: "min(90vw, 1100px)", height: "min(80vh, 720px)" }}
             onClick={(e) => e.stopPropagation()}
           >
             <Image
               src={images[lightboxIndex]}
               alt={`${title} ${lightboxIndex + 1}`}
               fill
-              className="object-contain"
+              style={{ objectFit: "contain" }}
             />
           </div>
 
           <button
-            className="absolute right-4 w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.15)" }}
+            style={{
+              position: "absolute", right: 20,
+              width: 40, height: 40, borderRadius: "50%",
+              background: "rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#fff",
+            }}
             onClick={(e) => {
               e.stopPropagation();
               setLightboxIndex((i) => (i! < images.length - 1 ? i! + 1 : 0));
             }}
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight size={20} />
           </button>
 
-          <div className="absolute bottom-4 text-white text-sm opacity-60">
+          <div style={{ position: "absolute", bottom: 20, color: "rgba(255,255,255,0.5)", fontSize: 13 }}>
             {lightboxIndex + 1} / {images.length}
           </div>
         </div>

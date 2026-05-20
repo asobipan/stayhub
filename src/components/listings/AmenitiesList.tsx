@@ -1,20 +1,20 @@
-const AMENITY_ICONS: Record<string, string> = {
-  wifi: "📶",
-  parking: "🅿️",
-  pool: "🏊",
-  gym: "🏋️",
-  kitchen: "🍳",
-  ac: "❄️",
-  heating: "🔥",
-  tv: "📺",
-  washer: "🫧",
-  dryer: "🌀",
-  workspace: "💼",
-  balcony: "🏡",
-  pets: "🐾",
-  bbq: "🔥",
-  beach: "🏖️",
-  mountain: "⛰️",
+const AMENITY_LABELS: Record<string, { label: string; icon: string }> = {
+  wifi:      { label: "Wi-Fi",           icon: "📶" },
+  parking:   { label: "Парковка",        icon: "🅿️" },
+  pool:      { label: "Басейн",          icon: "🏊" },
+  gym:       { label: "Спортзал",        icon: "🏋️" },
+  kitchen:   { label: "Кухня",           icon: "🍳" },
+  ac:        { label: "Кондиціонер",     icon: "❄️" },
+  heating:   { label: "Опалення",        icon: "🔥" },
+  tv:        { label: "Телевізор",       icon: "📺" },
+  washer:    { label: "Пральна машина",  icon: "🫧" },
+  dryer:     { label: "Сушарка",         icon: "🌀" },
+  workspace: { label: "Робоче місце",    icon: "💼" },
+  balcony:   { label: "Балкон",          icon: "🏡" },
+  pets:      { label: "Домашні тварини", icon: "🐾" },
+  bbq:       { label: "Мангал",          icon: "🍖" },
+  beach:     { label: "Пляж поруч",      icon: "🏖️" },
+  mountain:  { label: "Гори поруч",      icon: "⛰️" },
 };
 
 interface AmenitiesListProps {
@@ -26,30 +26,22 @@ export function AmenitiesList({ amenities }: AmenitiesListProps) {
 
   return (
     <div>
-      <h2
-        className="text-xl font-semibold mb-4"
-        style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
-      >
-        Зручності
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <h3 className="sh-block-title">Що пропонує житло</h3>
+      <div className="sh-amen-list">
         {amenities.map((amenity) => {
           const key = amenity.toLowerCase().replace(/\s+/g, "");
-          const icon = AMENITY_ICONS[key] ?? "✓";
+          const entry = AMENITY_LABELS[key];
           return (
-            <div
-              key={amenity}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl border"
-              style={{ borderColor: "#E7E5E0", background: "#FAFAF8" }}
-            >
-              <span className="text-lg leading-none">{icon}</span>
-              <span className="text-sm font-medium capitalize" style={{ color: "#44403C" }}>
-                {amenity}
-              </span>
+            <div key={amenity} className="sh-amen-item">
+              <span style={{ fontSize: 16, lineHeight: 1 }}>{entry?.icon ?? "✓"}</span>
+              <span>{entry?.label ?? amenity}</span>
             </div>
           );
         })}
       </div>
+      <button className="sh-btn sh-btn-outline">
+        Показати всі зручності
+      </button>
     </div>
   );
 }
