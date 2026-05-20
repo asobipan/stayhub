@@ -7,6 +7,157 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { StarFillIcon, PinIcon, ArrowIcon, CalIcon, SlidersIcon } from "@/components/ui/icons";
 
+// ─── Review Modal ────────────────────────────────────────────────
+function ReviewModal({
+  bookingId,
+  listingTitle,
+  onClose,
+  onSuccess,
+}: {
+  bookingId: string;
+  listingTitle: string;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function submit() {
+    if (!rating) { toast.error("Оберіть рейтинг"); return; }
+    if (!comment.trim()) { toast.error("Напишіть відгук"); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId, rating, comment }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        toast.error(d.error ?? "Помилка");
+        return;
+      }
+      toast.success("Відгук збережено — дякуємо!");
+      onSuccess();
+    } catch {
+      toast.error("Помилка мережі");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const active = hovered || rating;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl border p-6 flex flex-col gap-5"
+        style={{ background: "var(--surface)", borderColor: "var(--line)" }}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-widest mb-1.5" style={{ color: "var(--sh-muted)" }}>
+              Ваш відгук
+            </p>
+            <h2 className="font-serif text-[20px] leading-snug" style={{ color: "var(--ink)" }}>
+              {listingTitle}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[var(--bg-alt)]"
+            style={{ color: "var(--sh-muted)" }}
+            aria-label="Закрити"
+          >
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Stars */}
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-wider mb-2.5" style={{ color: "var(--sh-muted)" }}>
+            Загальна оцінка
+          </p>
+          <div className="flex items-center gap-1.5" onMouseLeave={() => setHovered(0)}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                onClick={() => setRating(n)}
+                onMouseEnter={() => setHovered(n)}
+                className="transition-transform hover:scale-110"
+                aria-label={`${n} зірок`}
+              >
+                <StarFillIcon
+                  size={28}
+                  className={n <= active ? "text-[var(--accent)]" : "text-[var(--line)]"}
+                />
+              </button>
+            ))}
+            {rating > 0 && (
+              <span className="ml-2 font-mono text-[11px]" style={{ color: "var(--ink-2)" }}>
+                {["", "Погано", "Задовільно", "Добре", "Дуже добре", "Відмінно"][rating]}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Textarea */}
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-wider mb-2" style={{ color: "var(--sh-muted)" }}>
+            Розкажіть про перебування
+          </p>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={4}
+            maxLength={1000}
+            placeholder="Що вам сподобалось? Що можна покращити?"
+            className="w-full rounded-xl border px-4 py-3 text-[14px] leading-relaxed resize-none outline-none transition-colors"
+            style={{
+              background: "var(--bg-alt)",
+              borderColor: "var(--line)",
+              color: "var(--ink)",
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
+          />
+          <p className="text-right font-mono text-[10px] mt-1" style={{ color: "var(--sh-muted)" }}>
+            {comment.length}/1000
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2.5 pt-1">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-colors hover:bg-[var(--bg-alt)]"
+            style={{ borderColor: "var(--line)", color: "var(--ink-2)" }}
+          >
+            Скасувати
+          </button>
+          <button
+            onClick={submit}
+            disabled={loading || !rating || !comment.trim()}
+            className="flex-1 sh-btn sh-btn-primary"
+            style={{ opacity: loading || !rating || !comment.trim() ? 0.5 : 1 }}
+          >
+            {loading ? "Надсилаю..." : "Відправити відгук"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 
 interface BookingItem {
@@ -119,12 +270,15 @@ function CancelBtn({ bookingId }: { bookingId: string }) {
 
 // ─── Booking card ────────────────────────────────────────────────
 function BookingCard({ b, index }: { b: BookingItem; index: number }) {
+  const router = useRouter();
   const bucket = bucketOf(b);
   const meta   = STATUS_META[b.status];
   const nights = nightsCount(b.checkIn, b.checkOut);
   const days   = daysUntil(b.checkIn);
   const showCountdown = bucket === "upcoming" && days > 0 && days <= 90;
   const isPaid = b.status === "CONFIRMED" || b.status === "COMPLETED";
+  const [showReview, setShowReview] = useState(false);
+  const [reviewed, setReviewed] = useState(b.hasReview);
 
   return (
     <article
@@ -277,9 +431,10 @@ function BookingCard({ b, index }: { b: BookingItem; index: number }) {
             </Link>
           )}
 
-          {b.status === "COMPLETED" && !b.hasReview && (
+          {b.status === "COMPLETED" && !reviewed && (
             <>
               <button
+                onClick={() => setShowReview(true)}
                 className="sh-btn sh-btn-primary sh-btn-sm flex items-center gap-1.5"
               >
                 <StarFillIcon size={12} />
@@ -295,7 +450,7 @@ function BookingCard({ b, index }: { b: BookingItem; index: number }) {
             </>
           )}
 
-          {b.status === "COMPLETED" && b.hasReview && (
+          {b.status === "COMPLETED" && reviewed && (
             <div
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px]"
               style={{ background: "var(--bg-alt)", color: "var(--ink-2)" }}
@@ -326,6 +481,19 @@ function BookingCard({ b, index }: { b: BookingItem; index: number }) {
           </Link>
         </div>
       </div>
+
+      {showReview && (
+        <ReviewModal
+          bookingId={b.id}
+          listingTitle={b.listing.title}
+          onClose={() => setShowReview(false)}
+          onSuccess={() => {
+            setShowReview(false);
+            setReviewed(true);
+            router.refresh();
+          }}
+        />
+      )}
     </article>
   );
 }

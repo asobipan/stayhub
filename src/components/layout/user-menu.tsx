@@ -97,7 +97,7 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
               {/* Section: Подорожі */}
               <div className="pb-1 mb-1 border-b border-[var(--line)]">
                 <MenuItem href="/bookings" icon={<BedIcon />}>Мої подорожі</MenuItem>
-                <MenuItem href="/bookings" icon={<HeartIcon />}>Збережені</MenuItem>
+                <MenuItem href="/saved" icon={<HeartIcon />}>Збережені</MenuItem>
                 <MenuItem href="/bookings" icon={<CalIcon />}>Бронювання</MenuItem>
               </div>
 
@@ -121,8 +121,8 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
 
               {/* Section: Налаштування */}
               <div className="pb-1 mb-1 border-b border-[var(--line)]">
-                <MenuItem href="#" icon={<ShieldIcon />}>Центр допомоги</MenuItem>
-                <MenuItem href="#" icon={<ArrowURIcon size={16} />}>Стати Superhost</MenuItem>
+                <MenuItem href="/profile" icon={<ShieldIcon />}>Мій профіль</MenuItem>
+                <MenuItem href="/superhost" icon={<ArrowURIcon size={16} />}>Стати Superhost</MenuItem>
               </div>
 
               {/* Sign out */}
