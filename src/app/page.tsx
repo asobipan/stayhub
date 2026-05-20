@@ -3,6 +3,7 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { CategoryTabs } from "@/components/listings/CategoryTabs";
 import { ListingCard } from "@/components/listings/ListingCard";
+import { HeroSearch } from "@/components/home/HeroSearch";
 
 /* ─── Data ──────────────────────────────────────────────────── */
 const CITIES = [
@@ -83,48 +84,7 @@ export default async function HomePage() {
               у 8 країнах Європи. Без масовки, з характером.
             </p>
 
-            {/* Search block */}
-            <div className="grid grid-cols-[1.4fr_1fr_auto] items-end gap-0 bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.06)] mb-5">
-              <div className="px-5 py-3 border-r border-[var(--line)]">
-                <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-1">Куди</label>
-                <input
-                  type="text"
-                  placeholder="Київ, Львів, Барселона…"
-                  className="w-full text-[14px] font-medium text-[var(--ink)] bg-transparent outline-none placeholder:text-[color-mix(in_oklab,var(--ink)_35%,transparent)]"
-                />
-              </div>
-              <div className="px-5 py-3">
-                <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-1">Коли</label>
-                <input
-                  type="text"
-                  placeholder="Додати дати"
-                  className="w-full text-[14px] font-medium text-[var(--ink)] bg-transparent outline-none placeholder:text-[color-mix(in_oklab,var(--ink)_35%,transparent)]"
-                />
-              </div>
-              <Link
-                href="/listings"
-                className="m-1 flex items-center gap-2 px-[22px] py-[14px] bg-[var(--ink)] text-[var(--background)] rounded-xl text-[13px] font-semibold no-underline transition-transform hover:-translate-y-px"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
-                </svg>
-                Шукати
-              </Link>
-            </div>
-
-            {/* Popular pills */}
-            <div className="flex items-center flex-wrap gap-2 text-[12px]">
-              <span className="text-[var(--sh-muted)]">Популярне:</span>
-              {["Біля моря", "Гори", "Лофт у центрі", "З басейном", "Для роботи"].map((t) => (
-                <Link
-                  key={t}
-                  href={`/listings?q=${encodeURIComponent(t)}`}
-                  className="px-3 py-1.5 border border-[var(--line)] rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--surface)] hover:border-[var(--ink)] hover:text-[var(--ink)]"
-                >
-                  {t}
-                </Link>
-              ))}
-            </div>
+            <HeroSearch />
           </div>
 
           {/* Right — hero card stack */}

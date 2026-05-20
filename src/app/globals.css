@@ -74,6 +74,7 @@
   --sidebar-ring:        oklch(0.62 0.14 45);
 
   /* Extra tokens used in components */
+  --bg:           oklch(0.96 0.012 85);
   --surface:      oklch(0.985 0.008 85);
   --surface-2:    oklch(0.93 0.012 85);
   --ink:          oklch(0.24 0.04 155);

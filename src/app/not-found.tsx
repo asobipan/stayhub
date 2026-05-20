@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden"
-      style={{ background: "#1E1B4B" }}
+      style={{ background: "var(--bg)" }}
     >
       {/* Big background number */}
       <div
@@ -13,10 +13,10 @@ export default function NotFound() {
       >
         <span
           style={{
-            fontSize: "clamp(180px, 35vw, 400px)",
+            fontSize: "clamp(200px, 38vw, 480px)",
             fontFamily: "var(--font-heading)",
-            fontWeight: 700,
-            color: "rgba(255,255,255,0.04)",
+            fontWeight: 400,
+            color: "oklch(0.88 0.014 80)",
             lineHeight: 1,
             letterSpacing: "-0.04em",
           }}
@@ -26,48 +26,34 @@ export default function NotFound() {
       </div>
 
       <div className="relative text-center max-w-md anim-fade-up">
-        {/* Gold rule */}
-        <div className="flex justify-center mb-8">
-          <span className="hero-rule" />
+        {/* Eyebrow */}
+        <div className="flex items-center justify-center gap-2.5 mb-6">
+          <span className="w-7 h-px" style={{ background: "var(--sh-accent)" }} />
+          <span className="font-mono-sh text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--sh-muted)" }}>
+            StayHub · Помилка
+          </span>
+          <span className="w-7 h-px" style={{ background: "var(--sh-accent)" }} />
         </div>
 
-        <p
-          className="section-eyebrow mb-4"
-          style={{ color: "rgba(245,158,11,0.7)" }}
-        >
-          Сторінка не знайдена
-        </p>
-
         <h1
-          className="text-5xl font-semibold mb-4 leading-tight"
-          style={{ fontFamily: "var(--font-heading)", color: "#fff" }}
+          className="font-serif leading-[1.05] tracking-[-0.02em] mb-4"
+          style={{ fontSize: "clamp(2.2rem,5vw,3.6rem)", color: "var(--ink)" }}
         >
-          Тут нічого немає
+          Тут <em className="italic" style={{ color: "var(--sh-accent)" }}>нічого</em> немає
         </h1>
 
-        <p
-          className="text-base mb-10 leading-relaxed"
-          style={{ color: "rgba(255,255,255,0.5)" }}
-        >
-          Сторінка могла бути видалена, переміщена або ніколи не існувала.
+        <p className="text-[15px] leading-relaxed mb-10" style={{ color: "var(--ink-2)" }}>
+          Сторінка могла бути видалена, переміщена або ніколи не існувала.<br />
+          Повернись на головну — там є що дивитись.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/"
-            className="px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200"
-            style={{
-              background: "#F59E0B",
-              color: "#1E1B4B",
-              boxShadow: "0 4px 20px rgba(245,158,11,0.3)",
-            }}
-          >
+          <Link href="/" className="sh-btn sh-btn-primary px-7 py-3.5 rounded-xl text-[13.5px]">
             На головну
           </Link>
           <Link
             href="/listings"
-            className="px-6 py-3 rounded-xl text-sm font-semibold border transition-colors"
-            style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)" }}
+            className="sh-btn sh-btn-outline px-7 py-3.5 rounded-xl text-[13.5px]"
           >
             Переглянути оголошення
           </Link>

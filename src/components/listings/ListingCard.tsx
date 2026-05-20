@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 import { HeartIcon, HeartFillIcon, StarFillIcon, PinIcon } from "@/components/ui/icons";
 
 export interface ListingCardProps {
@@ -38,13 +39,21 @@ export function ListingCard({
 
   const toggleSaved = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
-    setLiked((v) => !v);
-    await fetch("/api/saved", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ listingId: id }),
-    });
-  }, [id]);
+    const next = !liked;
+    setLiked(next);
+    try {
+      const res = await fetch("/api/saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId: id }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(next ? "Додано до збережених" : "Видалено зі збережених");
+    } catch {
+      setLiked(!next);
+      toast.error("Помилка. Спробуйте ще раз");
+    }
+  }, [id, liked]);
 
   const navPhoto = (e: React.MouseEvent, dir: number) => {
     e.preventDefault();
