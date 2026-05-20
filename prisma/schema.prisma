@@ -17,6 +17,7 @@ model User {
   phone         String?
   bio           String?
   isVerified    Boolean   @default(false)
+  isBlocked     Boolean   @default(false)
   role          UserRole  @default(GUEST)
   password      String?
   createdAt     DateTime  @default(now())

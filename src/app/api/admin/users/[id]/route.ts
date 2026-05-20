@@ -12,16 +12,30 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { role } = await req.json();
+  const body = await req.json();
 
-  if (!["GUEST", "HOST", "ADMIN"].includes(role)) {
-    return NextResponse.json({ error: "Невірна роль" }, { status: 400 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: Record<string, any> = {};
+
+  if ("role" in body) {
+    if (!["GUEST", "HOST", "ADMIN"].includes(body.role)) {
+      return NextResponse.json({ error: "Невірна роль" }, { status: 400 });
+    }
+    data.role = body.role;
+  }
+
+  if ("isBlocked" in body) {
+    data.isBlocked = Boolean(body.isBlocked);
+  }
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: "Нема даних для оновлення" }, { status: 400 });
   }
 
   const updated = await db.user.update({
     where: { id },
-    data: { role },
-    select: { id: true, role: true },
+    data,
+    select: { id: true, role: true, isBlocked: true },
   });
 
   return NextResponse.json(updated);
