@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ListingToggle } from "@/components/dashboard/ListingToggle";
 import { ListingDelete } from "@/components/dashboard/ListingDelete";
+import { PlusIcon, ArrowURIcon, StarFillIcon } from "@/components/ui/icons";
 
 export default async function DashboardListingsPage() {
   const session = await auth();
@@ -29,58 +29,59 @@ export default async function DashboardListingsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-start justify-between mb-8">
         <div>
+          <p className="font-mono text-[10.5px] uppercase tracking-widest mb-2" style={{ color: "var(--sh-muted)" }}>
+            Хостинг · оголошення
+          </p>
           <h1
-            className="text-2xl font-semibold mb-1"
-            style={{ fontFamily: "var(--font-heading)", color: "#1C1917" }}
+            className="font-serif text-[28px] leading-tight mb-1"
+            style={{ color: "var(--ink)" }}
           >
             Мої оголошення
           </h1>
-          <p className="text-sm" style={{ color: "#78716C" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {listings.length} {listings.length === 1 ? "оголошення" : listings.length < 5 ? "оголошення" : "оголошень"}
           </p>
         </div>
         <Link
           href="/dashboard/listings/new"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-          style={{ background: "#1E1B4B", color: "#fff" }}
+          className="sh-btn sh-btn-primary flex items-center gap-2"
         >
-          <Plus className="w-4 h-4" />
+          <PlusIcon size={15} />
           Нове оголошення
         </Link>
       </div>
 
       {listings.length === 0 ? (
         <div
-          className="text-center py-20 rounded-2xl border-2 border-dashed"
-          style={{ borderColor: "#E7E5E0" }}
+          className="text-center py-24 rounded-2xl border-2 border-dashed"
+          style={{ borderColor: "var(--line)" }}
         >
-          <p className="text-sm font-medium mb-1" style={{ color: "#44403C" }}>
+          <p className="text-sm font-medium mb-1.5" style={{ color: "var(--ink)" }}>
             У вас ще немає оголошень
           </p>
-          <p className="text-sm mb-6" style={{ color: "#A8A29E" }}>
-            Створіть перше оголошення, щоб почати приймати гостей
+          <p className="text-sm mb-6" style={{ color: "var(--ink-2)" }}>
+            Створіть перше, щоб почати приймати гостей
           </p>
-          <Link
-            href="/dashboard/listings/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium"
-            style={{ background: "#1E1B4B", color: "#fff" }}
-          >
-            <Plus className="w-4 h-4" />
+          <Link href="/dashboard/listings/new" className="sh-btn sh-btn-primary inline-flex items-center gap-2">
+            <PlusIcon size={15} />
             Створити оголошення
           </Link>
         </div>
       ) : (
-        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "#E7E5E0", background: "#fff" }}>
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ borderColor: "var(--line)", background: "var(--surface)" }}
+        >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: "1px solid #F0EDE6" }}>
+              <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 {["Назва", "Місто", "Ціна/ніч", "Рейтинг", "Бронювань", "Статус", ""].map((h) => (
                   <th
                     key={h}
-                    className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#A8A29E", letterSpacing: "0.08em" }}
+                    className="text-left px-5 py-3.5 font-mono text-[10px] uppercase tracking-widest"
+                    style={{ color: "var(--sh-muted)" }}
                   >
                     {h}
                   </th>
@@ -88,36 +89,42 @@ export default async function DashboardListingsPage() {
               </tr>
             </thead>
             <tbody>
-              {listings.map((listing) => (
+              {listings.map((listing, i) => (
                 <tr
                   key={listing.id}
-                  style={{ borderBottom: "1px solid #F7F6F3" }}
-                  className="hover:bg-[#FAFAF8] transition-colors"
+                  className="transition-colors hover:bg-[var(--bg-alt)]"
+                  style={{ borderBottom: i < listings.length - 1 ? "1px solid var(--line)" : "none" }}
                 >
-                  <td className="px-5 py-4">
-                    <span className="text-sm font-medium" style={{ color: "#1C1917" }}>
+                  <td className="px-5 py-4 max-w-[220px]">
+                    <span className="text-sm font-medium line-clamp-1" style={{ color: "var(--ink)" }}>
                       {listing.title}
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "#78716C" }}>
-                      {listing.city}, {listing.country}
+                    <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+                      {listing.city}
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm font-semibold" style={{ color: "#1E1B4B" }}>
+                    <span className="font-serif text-[17px]" style={{ color: "var(--ink)" }}>
                       ${listing.price}
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "#78716C" }}>
-                      {listing.reviewCount > 0
-                        ? `★ ${listing.avgRating.toFixed(1)} (${listing.reviewCount})`
-                        : "—"}
-                    </span>
+                    {listing.reviewCount > 0 ? (
+                      <span className="flex items-center gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
+                        <StarFillIcon size={11} className="text-[var(--accent)]" />
+                        {listing.avgRating.toFixed(1)}
+                        <span className="font-mono text-[10px]" style={{ color: "var(--sh-muted)" }}>
+                          ({listing.reviewCount})
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-sm" style={{ color: "var(--sh-muted)" }}>—</span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "#78716C" }}>
+                    <span className="font-mono text-sm" style={{ color: "var(--ink-2)" }}>
                       {listing._count.bookings}
                     </span>
                   </td>
@@ -125,22 +132,21 @@ export default async function DashboardListingsPage() {
                     <ListingToggle id={listing.id} isActive={listing.isActive} />
                   </td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <Link
                         href={`/listings/${listing.id}`}
-                        className="p-1.5 rounded-md transition-colors hover:bg-[#F5F4F0]"
+                        className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-alt)]"
                         title="Переглянути"
-                        style={{ color: "#78716C" }}
+                        style={{ color: "var(--ink-2)" }}
                       >
-                        <Eye className="w-4 h-4" />
+                        <ArrowURIcon size={13} />
                       </Link>
                       <Link
                         href={`/dashboard/listings/${listing.id}/edit`}
-                        className="p-1.5 rounded-md transition-colors hover:bg-[#F5F4F0]"
-                        title="Редагувати"
-                        style={{ color: "#78716C" }}
+                        className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-alt)] text-xs font-medium"
+                        style={{ color: "var(--ink-2)" }}
                       >
-                        <Edit className="w-4 h-4" />
+                        Ред.
                       </Link>
                       <ListingDelete id={listing.id} />
                     </div>
