@@ -19,8 +19,7 @@ interface UserMenuProps {
 }
 
 const ROLE_LABEL: Record<UserRole, string> = {
-  GUEST: "Гість",
-  HOST: "Хост",
+  USER: "Користувач",
   ADMIN: "Адмін",
 };
 
@@ -102,7 +101,7 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
               </div>
 
               {/* Section: Хостинг */}
-              {(user.role === "HOST" || user.role === "ADMIN") && (
+              {(user.role === "USER" || user.role === "ADMIN") && (
                 <div className="pb-1 mb-1 border-b border-[var(--line)]">
                   <p className="font-mono-sh text-[9.5px] uppercase tracking-[0.08em] text-[var(--sh-muted)] px-3 pt-2 pb-1">Хостинг</p>
                   <MenuItem href="/dashboard/listings" icon={<HomeIcon />}>Мої оголошення</MenuItem>

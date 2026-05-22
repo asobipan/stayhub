@@ -16,18 +16,16 @@ type User = {
   _count: { bookings: number; listings: number };
 };
 
-const ROLE_LABELS: Record<string, string> = { GUEST: "Гість", HOST: "Хост", ADMIN: "Адмін" };
+const ROLE_LABELS: Record<string, string> = { USER: "Користувач", ADMIN: "Адмін" };
 const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
-  GUEST: { bg: "var(--bg-alt)",            color: "var(--ink-2)"          },
-  HOST:  { bg: "oklch(0.94 0.06 145)",     color: "oklch(0.4 0.12 145)"   },
+  USER:  { bg: "var(--bg-alt)",            color: "var(--ink-2)"          },
   ADMIN: { bg: "oklch(0.94 0.07 75)",      color: "oklch(0.42 0.13 60)"   },
 };
 
 const TABS = [
-  { key: "ALL",   label: "Всі"     },
-  { key: "GUEST", label: "Гості"   },
-  { key: "HOST",  label: "Хости"   },
-  { key: "ADMIN", label: "Адміни"  },
+  { key: "ALL",   label: "Всі"          },
+  { key: "USER",  label: "Користувачі"  },
+  { key: "ADMIN", label: "Адміни"       },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -64,8 +62,7 @@ export function UsersClient({ initialUsers }: { initialUsers: User[] }) {
   const counts = useMemo(
     () => ({
       ALL:   users.length,
-      GUEST: users.filter((u) => u.role === "GUEST").length,
-      HOST:  users.filter((u) => u.role === "HOST").length,
+      USER:  users.filter((u) => u.role === "USER").length,
       ADMIN: users.filter((u) => u.role === "ADMIN").length,
     }),
     [users]
@@ -209,7 +206,7 @@ export function UsersClient({ initialUsers }: { initialUsers: User[] }) {
             <tbody>
               {filtered.map((user, i) => {
                 const isLast = i === filtered.length - 1;
-                const rs = ROLE_STYLES[user.role] ?? ROLE_STYLES.GUEST;
+                const rs = ROLE_STYLES[user.role] ?? ROLE_STYLES.USER;
                 const busy = loadingId === user.id;
 
                 return (
@@ -270,8 +267,7 @@ export function UsersClient({ initialUsers }: { initialUsers: User[] }) {
                         className="text-[11px] font-semibold px-2.5 py-1.5 rounded-full border-0 outline-none cursor-pointer transition-all"
                         style={{ background: rs.bg, color: rs.color }}
                       >
-                        <option value="GUEST">{ROLE_LABELS.GUEST}</option>
-                        <option value="HOST">{ROLE_LABELS.HOST}</option>
+                        <option value="USER">{ROLE_LABELS.USER}</option>
                         <option value="ADMIN">{ROLE_LABELS.ADMIN}</option>
                       </select>
                     </td>

@@ -18,7 +18,7 @@ export async function PATCH(
   const data: Record<string, any> = {};
 
   if ("role" in body) {
-    if (!["GUEST", "HOST", "ADMIN"].includes(body.role)) {
+    if (!["USER", "ADMIN"].includes(body.role)) {
       return NextResponse.json({ error: "Невірна роль" }, { status: 400 });
     }
     data.role = body.role;

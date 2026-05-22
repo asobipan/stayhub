@@ -3,7 +3,7 @@ import { auth, signOut } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { UserMenu } from "./user-menu";
 import { HeaderCenter } from "./header-center";
-import { PlusIcon, GlobeIcon, HeartIcon } from "@/components/ui/icons";
+import { PlusIcon, HeartIcon } from "@/components/ui/icons";
 
 async function SignOutAction() {
   "use server";
@@ -48,14 +48,6 @@ export async function Header() {
             <PlusIcon size={14} />
             Стати хостом
           </Link>
-
-          <button
-            className="flex items-center justify-center w-9 h-9 rounded-full text-[var(--ink-2)] transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
-            title="Мова та валюта"
-            aria-label="Мова та валюта"
-          >
-            <GlobeIcon size={16} />
-          </button>
 
           <Link
             href="/bookings"

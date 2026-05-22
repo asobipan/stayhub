@@ -57,7 +57,7 @@ export async function getListings(query: ListingsQuery) {
     ...(minPrice && { price: { gte: minPrice } }),
     ...(maxPrice && { price: { lte: maxPrice } }),
     ...(bedroomsMin && { bedrooms: { gte: bedroomsMin } }),
-    ...(query.superhost === "1" && { host: { role: "HOST" as const } }),
+    ...(query.superhost === "1" && { host: { isVerified: true } }),
     ...(amenityList.length > 0 && { amenities: { hasEvery: amenityList } }),
     ...(excludedListingIds.length > 0 && { id: { notIn: excludedListingIds } }),
   };

@@ -25,7 +25,7 @@ export default async function ProfilePage() {
 
   const profile = {
     ...user,
-    role: user.role as "GUEST" | "HOST" | "ADMIN",
+    role: user.role as "USER" | "ADMIN",
     createdAt: user.createdAt.toISOString(),
     bookingCount,
     reviewCount,

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ShieldIcon, StarFillIcon, CalIcon } from "@/components/ui/icons";
 
-type UserRole = "GUEST" | "HOST" | "ADMIN";
+type UserRole = "USER" | "ADMIN";
 
 interface ProfileData {
   id: string;
@@ -22,8 +22,7 @@ interface ProfileData {
 }
 
 const ROLE_LABEL: Record<UserRole, string> = {
-  GUEST: "Гість",
-  HOST: "Хост",
+  USER: "Користувач",
   ADMIN: "Адмін",
 };
 
@@ -373,8 +372,7 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                 <div>
                   <p className="font-medium text-[14px]" style={{ color: "var(--ink)" }}>{ROLE_LABEL[profile.role]}</p>
                   <p className="text-[12px]" style={{ color: "var(--sh-muted)" }}>
-                    {profile.role === "GUEST" && "Може бронювати помешкання"}
-                    {profile.role === "HOST"  && "Може публікувати помешкання"}
+                    {profile.role === "USER"  && "Може бронювати та публікувати помешкання"}
                     {profile.role === "ADMIN" && "Повний доступ до платформи"}
                   </p>
                 </div>

@@ -53,7 +53,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: string }).role ?? "GUEST";
+        token.role = (user as { role?: string }).role ?? "USER";
       }
       // Refresh role from DB on session update
       if (trigger === "update" || !token.role) {
@@ -61,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { id: token.id as string },
           select: { role: true },
         });
-        token.role = dbUser?.role ?? "GUEST";
+        token.role = dbUser?.role ?? "USER";
       }
       return token;
     },

@@ -5,9 +5,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
-  GUEST:  { bg: "rgba(168,162,158,0.12)", color: "#78716C" },
-  HOST:   { bg: "rgba(30,27,75,0.08)",   color: "#312E81" },
-  ADMIN:  { bg: "rgba(245,158,11,0.12)", color: "#D97706" },
+  USER:  { bg: "rgba(168,162,158,0.12)", color: "#78716C" },
+  ADMIN: { bg: "rgba(245,158,11,0.12)", color: "#D97706" },
 };
 
 export function RoleSelect({ userId, currentRole }: { userId: string; currentRole: string }) {
@@ -38,7 +37,7 @@ export function RoleSelect({ userId, currentRole }: { userId: string; currentRol
     }
   }
 
-  const style = ROLE_STYLES[role] ?? ROLE_STYLES.GUEST;
+  const style = ROLE_STYLES[role] ?? ROLE_STYLES.USER;
 
   return (
     <select
@@ -48,8 +47,7 @@ export function RoleSelect({ userId, currentRole }: { userId: string; currentRol
       className="text-xs font-semibold px-2.5 py-1.5 rounded-full border-0 outline-none cursor-pointer transition-all"
       style={{ background: style.bg, color: style.color }}
     >
-      <option value="GUEST">GUEST</option>
-      <option value="HOST">HOST</option>
+      <option value="USER">USER</option>
       <option value="ADMIN">ADMIN</option>
     </select>
   );
