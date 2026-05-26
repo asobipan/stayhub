@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Upload, X, Plus, Check } from "lucide-react";
+import { Upload, X, Check } from "lucide-react";
 
 const AMENITIES = [
   "Wi-Fi", "Кухня", "Парковка", "Кондиціонер", "Опалення",
