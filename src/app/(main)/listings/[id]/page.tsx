@@ -108,18 +108,18 @@ export default async function ListingDetailPage({ params }: Props) {
   const memberSince = new Date(listing.host.createdAt).getFullYear();
 
   return (
-    <div className="sh-detail">
-      <div className="sh-container">
+    <div className="py-8 pb-20">
+      <div className="max-w-[1320px] mx-auto px-8">
 
         {/* Breadcrumb row */}
-        <div className="sh-crumb">
-          <Link href="/listings" className="sh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/listings" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-[var(--ink)] no-underline transition-opacity hover:opacity-70 hover:underline underline-offset-[3px]">
             <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M11 6l-6 6 6 6" />
             </svg>
             Назад до каталогу
           </Link>
-          <div className="sh-crumb-actions">
+          <div className="flex gap-2">
             {isOwner && (
               <Link
                 href={`/dashboard/listings/${id}/edit`}
@@ -136,9 +136,9 @@ export default async function ListingDetailPage({ params }: Props) {
         </div>
 
         {/* Title */}
-        <div className="sh-detail-head">
-          <h1 className="sh-detail-title">{listing.title}</h1>
-          <div className="sh-detail-head-meta">
+        <div className="mb-6">
+          <h1 className="font-serif font-normal text-[clamp(26px,3.5vw,36px)] leading-[1.15] text-[var(--ink)] mb-3">{listing.title}</h1>
+          <div className="flex items-center gap-3 text-[13.5px] text-[var(--ink-2)]">
             {listing.reviewCount > 0 && (
               <>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
@@ -146,7 +146,7 @@ export default async function ListingDetailPage({ params }: Props) {
                   <strong style={{ color: "var(--ink)" }}>{listing.avgRating.toFixed(2)}</strong>
                   <span style={{ color: "var(--ink-2)" }}>· {listing.reviewCount} відгуків</span>
                 </span>
-                <span className="sh-muted">·</span>
+                <span className="text-[var(--sh-muted)]">·</span>
               </>
             )}
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
@@ -165,18 +165,18 @@ export default async function ListingDetailPage({ params }: Props) {
         <div className="sh-detail-grid">
 
           {/* LEFT: content */}
-          <div className="sh-detail-content">
+          <div>
 
             {/* Host block */}
             <section className="sh-block sh-host-block">
               <div>
-                <p className="sh-eyebrow-text">
+                <p className="font-mono-sh text-[11px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-2">
                   Хост · {memberSince} рік на StayHub
                 </p>
                 <h3>
                   Господар: <em>{listing.host.name}</em>
                 </h3>
-                <div className="sh-host-trust">
+                <div className="flex gap-1.5 flex-wrap">
                   <span style={{
                     display: "inline-flex", alignItems: "center", gap: 4,
                     padding: "3px 9px", borderRadius: 999,
@@ -204,7 +204,7 @@ export default async function ListingDetailPage({ params }: Props) {
             </section>
 
             {/* Quick facts */}
-            <section className="sh-facts sh-block">
+            <section className="sh-block grid grid-cols-4 py-6">
               <div className="sh-fact">
                 <BedIcon size={20} />
                 <div>
@@ -242,7 +242,7 @@ export default async function ListingDetailPage({ params }: Props) {
             {/* About */}
             <section className="sh-block">
               <h3 className="sh-block-title">Про це помешкання</h3>
-              <p className="sh-prose" style={{ whiteSpace: "pre-line" }}>
+              <p className="text-[14.5px] leading-[1.7] text-[var(--ink-2)] whitespace-pre-line">
                 {listing.description}
               </p>
             </section>
@@ -277,12 +277,12 @@ export default async function ListingDetailPage({ params }: Props) {
 
               {/* Rating bars */}
               {listing.reviewCount > 0 && (
-                <div className="sh-review-bars">
+                <div className="grid grid-cols-2 gap-3 gap-x-9 py-2 pb-6">
                   {RATING_CATEGORIES.map((r) => (
                     <div key={r.label} className="sh-review-bar">
                       <span>{r.label}</span>
-                      <div className="sh-review-bar-track">
-                        <div className="sh-review-bar-fill" style={{ width: `${(r.val / 5) * 100}%` }} />
+                      <div className="h-[3px] bg-[var(--line)] rounded-sm">
+                        <div className="h-full bg-[var(--ink)] rounded-sm" style={{ width: `${(r.val / 5) * 100}%` }} />
                       </div>
                       <strong>{r.val.toFixed(2)}</strong>
                     </div>
@@ -292,7 +292,7 @@ export default async function ListingDetailPage({ params }: Props) {
 
               {/* Reviews grid */}
               {listing.reviews.length > 0 && (
-                <div className="sh-reviews-grid">
+                <div className="grid grid-cols-2 gap-6 gap-x-9">
                   {listing.reviews.map((review) => (
                     <article key={review.id} className="sh-review">
                       <header>
@@ -314,7 +314,7 @@ export default async function ListingDetailPage({ params }: Props) {
                           <strong>{review.author.name}</strong>
                           <span>{new Date(review.createdAt).toLocaleDateString("uk-UA", { month: "long", year: "numeric" })}</span>
                         </div>
-                        <div className="sh-review-stars">
+                        <div className="inline-flex gap-px ml-auto">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <StarFillIcon
                               key={i}
@@ -338,13 +338,13 @@ export default async function ListingDetailPage({ params }: Props) {
             </section>
 
             {/* Location */}
-            <section className="sh-block sh-loc-block" style={{ borderBottom: "none", marginBottom: 0 }}>
+            <section className="sh-block mt-10" style={{ borderBottom: "none", marginBottom: 0 }}>
               <h3 className="sh-block-title">Де ви опинитеся</h3>
-              <p className="sh-muted" style={{ marginBottom: 18, fontSize: 14 }}>
+              <p className="text-[14px] text-[var(--sh-muted)] mb-[18px]">
                 {listing.address}, {listing.city}, {listing.country} · Точна адреса доступна після бронювання
               </p>
               {listing.latitude && listing.longitude && (
-                <div className="sh-mini-map">
+                <div className="h-[380px] rounded-2xl overflow-hidden bg-[var(--surface-2)]">
                   <iframe
                     width="100%"
                     height="100%"
@@ -373,16 +373,16 @@ export default async function ListingDetailPage({ params }: Props) {
         {/* Related listings */}
         {related.length > 0 && (
           <section className="sh-block sh-related" style={{ borderBottom: "none", marginBottom: 0 }}>
-            <div className="sh-section-head">
-              <h3 className="sh-section-title-sm">
+            <div className="flex items-end justify-between gap-8 mb-8">
+              <h3 className="font-serif font-normal text-[2rem] leading-[1.1] tracking-[-0.02em] text-[var(--ink)]">
                 Схожі помешкання<br />
-                <em>поруч</em>
+                <em className="italic text-[var(--sh-accent)]">поруч</em>
               </h3>
-              <Link href="/listings" className="sh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <Link href="/listings" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-[var(--ink)] no-underline transition-opacity hover:opacity-70 hover:underline underline-offset-[3px]">
                 Всі поблизу <ArrowIcon size={13} />
               </Link>
             </div>
-            <div className="sh-results-grid wide">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-5">
               {related.map((item, i) => (
                 <ListingCard
                   key={item.id}

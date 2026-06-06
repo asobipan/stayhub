@@ -114,7 +114,7 @@ export default function HostLandingPage() {
           borderBottom: "1px solid var(--line)",
         }}
       >
-        <div className="max-w-[1200px] mx-auto px-6 py-12 lg:py-20">
+        <div className="max-w-300 mx-auto px-6 py-12 lg:py-20">
           <nav
             className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-widest mb-10"
             style={{ color: "var(--sh-muted)" }}
@@ -122,7 +122,7 @@ export default function HostLandingPage() {
             <Link
               href="/"
               style={{ color: "var(--sh-muted)" }}
-              className="hover:text-[var(--ink)] transition-colors"
+              className="hover:text-(--ink) transition-colors"
             >
               StayHub
             </Link>
@@ -151,7 +151,7 @@ export default function HostLandingPage() {
                 </em>
               </h1>
               <p
-                className="text-[15px] mb-8 max-w-[460px] leading-relaxed"
+                className="text-[15px] mb-8 max-w-115 leading-relaxed"
                 style={{ color: "var(--ink-2)" }}
               >
                 Понад 580 хостів у Європі вже працюють зі StayHub. Допоможемо з
@@ -180,7 +180,7 @@ export default function HostLandingPage() {
                 </Link>
                 <a
                   href="#calc"
-                  className="inline-flex items-center gap-1.5 text-[14px] font-medium transition-colors hover:text-[var(--accent)]"
+                  className="inline-flex items-center gap-1.5 text-[14px] font-medium transition-colors hover:text-accent"
                   style={{ color: "var(--ink-2)" }}
                 >
                   Розрахувати дохід
@@ -201,11 +201,7 @@ export default function HostLandingPage() {
               <div className="flex items-center gap-2">
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <StarFillIcon
-                      key={i}
-                      size={13}
-                      className="text-[var(--accent)]"
-                    />
+                    <StarFillIcon key={i} size={13} className="text-accent" />
                   ))}
                 </div>
                 <span
@@ -316,7 +312,7 @@ export default function HostLandingPage() {
           borderBottom: "1px solid var(--line)",
         }}
       >
-        <div className="max-w-[1200px] mx-auto px-6 py-16 lg:py-24">
+        <div className="max-w-300 mx-auto px-6 py-16 lg:py-24">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-12">
             <div>
               <p
@@ -377,7 +373,7 @@ export default function HostLandingPage() {
         </div>
       </section>
       <section style={{ background: "var(--ink)" }}>
-        <div className="max-w-[1200px] mx-auto px-6 py-16 lg:py-20">
+        <div className="max-w-300 mx-auto px-6 py-16 lg:py-20">
           <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px"
             style={{ background: "rgba(255,255,255,0.08)" }}
@@ -414,7 +410,7 @@ export default function HostLandingPage() {
       <section
         style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}
       >
-        <div className="max-w-[1200px] mx-auto px-6 py-16 lg:py-24">
+        <div className="max-w-300 mx-auto px-6 py-16 lg:py-24">
           <div className="mb-12">
             <p
               className="font-mono text-[10.5px] uppercase tracking-widest mb-2"
@@ -508,7 +504,7 @@ export default function HostLandingPage() {
           borderTop: "1px solid var(--line)",
         }}
       >
-        <div className="max-w-[1200px] mx-auto px-6 py-16 lg:py-24">
+        <div className="max-w-300 mx-auto px-6 py-16 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-12 lg:gap-16">
             <div>
               <p
@@ -586,7 +582,7 @@ export default function HostLandingPage() {
       <section
         style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}
       >
-        <div className="max-w-[1200px] mx-auto px-6 py-16 lg:py-20">
+        <div className="max-w-300 mx-auto px-6 py-16 lg:py-20">
           <div
             className="rounded-3xl p-10 lg:p-14 overflow-hidden relative"
             style={{ background: "var(--ink)" }}

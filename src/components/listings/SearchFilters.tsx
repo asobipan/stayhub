@@ -42,7 +42,6 @@ export function SearchFilters() {
 
   return (
     <div className="flex items-center gap-0 bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
-      {/* City */}
       <div className="flex items-center gap-2.5 flex-1 px-5 py-3 border-r border-[var(--line)]">
         <SearchIcon size={15} className="text-[var(--sh-muted)] shrink-0" />
         <input
@@ -73,7 +72,6 @@ export function SearchFilters() {
         )}
       </div>
 
-      {/* Dates */}
       <div className="hidden md:flex items-center gap-2 px-5 py-3 border-r border-[var(--line)]">
         <label className="block font-mono-sh text-[10px] uppercase tracking-[0.08em] text-[var(--sh-muted)] sr-only">
           Заїзд
@@ -102,7 +100,6 @@ export function SearchFilters() {
         />
       </div>
 
-      {/* Guests */}
       <div className="hidden md:flex items-center px-5 py-3 border-r border-[var(--line)]">
         <input
           type="number"
@@ -118,7 +115,6 @@ export function SearchFilters() {
         />
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-2 px-3 py-2">
         {hasFilters && (
           <button

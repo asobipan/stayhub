@@ -6,7 +6,6 @@ export default function NotFound() {
       className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden"
       style={{ background: "var(--bg)" }}
     >
-      {/* Big background number */}
       <div
         className="absolute inset-0 flex items-center justify-center select-none pointer-events-none"
         aria-hidden
@@ -26,29 +25,48 @@ export default function NotFound() {
       </div>
 
       <div className="relative text-center max-w-md anim-fade-up">
-        {/* Eyebrow */}
         <div className="flex items-center justify-center gap-2.5 mb-6">
-          <span className="w-7 h-px" style={{ background: "var(--sh-accent)" }} />
-          <span className="font-mono-sh text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--sh-muted)" }}>
+          <span
+            className="w-7 h-px"
+            style={{ background: "var(--sh-accent)" }}
+          />
+          <span
+            className="font-mono-sh text-[11px] uppercase tracking-[0.08em]"
+            style={{ color: "var(--sh-muted)" }}
+          >
             StayHub · Помилка
           </span>
-          <span className="w-7 h-px" style={{ background: "var(--sh-accent)" }} />
+          <span
+            className="w-7 h-px"
+            style={{ background: "var(--sh-accent)" }}
+          />
         </div>
 
         <h1
           className="font-serif leading-[1.05] tracking-[-0.02em] mb-4"
           style={{ fontSize: "clamp(2.2rem,5vw,3.6rem)", color: "var(--ink)" }}
         >
-          Тут <em className="italic" style={{ color: "var(--sh-accent)" }}>нічого</em> немає
+          Тут{" "}
+          <em className="italic" style={{ color: "var(--sh-accent)" }}>
+            нічого
+          </em>{" "}
+          немає
         </h1>
 
-        <p className="text-[15px] leading-relaxed mb-10" style={{ color: "var(--ink-2)" }}>
-          Сторінка могла бути видалена, переміщена або ніколи не існувала.<br />
+        <p
+          className="text-[15px] leading-relaxed mb-10"
+          style={{ color: "var(--ink-2)" }}
+        >
+          Сторінка могла бути видалена, переміщена або ніколи не існувала.
+          <br />
           Повернись на головну — там є що дивитись.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/" className="sh-btn sh-btn-primary px-7 py-3.5 rounded-xl text-[13.5px]">
+          <Link
+            href="/"
+            className="sh-btn sh-btn-primary px-7 py-3.5 rounded-xl text-[13.5px]"
+          >
             На головну
           </Link>
           <Link

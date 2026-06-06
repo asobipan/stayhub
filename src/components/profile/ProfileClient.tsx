@@ -144,7 +144,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           }}
         />
-        {/* Subtle grid lines */}
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
@@ -152,14 +151,12 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
             backgroundSize: "48px 48px",
           }}
         />
-        {/* Accent orb */}
         <div
           className="absolute -bottom-16 -right-16 rounded-full opacity-20"
           style={{ width: 260, height: 260, background: "var(--accent)" }}
         />
 
-        <div className="sh-container relative h-full">
-          {/* Avatar + name row — внизу банера */}
+        <div className="max-w-[1320px] mx-auto px-8 relative h-full">
           <div className="flex items-end h-full gap-5 pb-5">
             <div className="relative flex-shrink-0">
               <Avatar name={profile.name} image={profile.image} size={80} />
@@ -201,14 +198,9 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
         </div>
       </div>
 
-      {/* ── Main content ──────────────────────────────── */}
-      <div className="sh-container pt-8 pb-20">
+      <div className="max-w-[1320px] mx-auto px-8 pt-8 pb-20">
         <div className="grid gap-8" style={{ gridTemplateColumns: "1fr 340px" }}>
-
-          {/* Left: edit form */}
           <div className="flex flex-col gap-6">
-
-            {/* Section: особисті дані */}
             <section
               className="rounded-2xl border p-6 flex flex-col gap-5"
               style={{ background: "var(--surface)", borderColor: "var(--line)" }}
@@ -233,7 +225,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
               </div>
 
               <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
-                {/* Name */}
                 <div className="flex flex-col gap-1.5" style={{ gridColumn: "1 / -1" }}>
                   <label className="font-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--sh-muted)" }}>
                     Повне ім'я *
@@ -249,8 +240,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                     onBlur={(e) => (e.currentTarget.style.borderColor = "var(--line)")}
                   />
                 </div>
-
-                {/* Email (readonly) */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--sh-muted)" }}>
                     Email
@@ -264,8 +253,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                   </div>
                   <p className="text-[10.5px]" style={{ color: "var(--sh-muted)" }}>Email не можна змінити</p>
                 </div>
-
-                {/* Phone */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--sh-muted)" }}>
                     Телефон
@@ -282,8 +269,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                   />
                 </div>
               </div>
-
-              {/* Bio */}
               <div className="flex flex-col gap-1.5">
                 <label className="font-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--sh-muted)" }}>
                   Про себе
@@ -303,8 +288,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                   {bio.length}/500
                 </p>
               </div>
-
-              {/* Save button */}
               <div className="flex justify-end pt-1">
                 <button
                   onClick={save}
@@ -318,11 +301,7 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
             </section>
 
           </div>
-
-          {/* Right: stats + info */}
           <div className="flex flex-col gap-4">
-
-            {/* Stats card */}
             <div
               className="rounded-2xl border overflow-hidden"
               style={{ background: "var(--surface)", borderColor: "var(--line)" }}
@@ -353,8 +332,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                 ))}
               </div>
             </div>
-
-            {/* Role card */}
             <div
               className="rounded-2xl border p-5 flex flex-col gap-3"
               style={{ background: "var(--surface)", borderColor: "var(--line)" }}
@@ -378,8 +355,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                 </div>
               </div>
             </div>
-
-            {/* Member since */}
             <div
               className="rounded-2xl border px-5 py-4 flex items-center gap-3"
               style={{ background: "var(--surface)", borderColor: "var(--line)" }}
@@ -395,7 +370,6 @@ export function ProfileClient({ profile }: { profile: ProfileData }) {
                 <p className="font-serif text-[15px]" style={{ color: "var(--ink)" }}>{fmtDate(profile.createdAt)}</p>
               </div>
             </div>
-
           </div>
         </div>
       </div>

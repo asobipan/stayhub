@@ -26,8 +26,9 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "StayHub — Помешкання з характером",
-  description: "Понад 580 житл у 8 країнах Європи. Лофти, вілли, кабіни та апартаменти без масовки.",
+  title: "StayHub - Помешкання з характером",
+  description:
+    "Понад 580 житл у 8 країнах Європи. Лофти, вілли, кабіни та апартаменти без масовки.",
 };
 
 export default function RootLayout({

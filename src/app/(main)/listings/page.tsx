@@ -136,7 +136,7 @@ export default async function ListingsPage({
       </div>
 
       {/* Catalog layout: sidebar + results */}
-      <div className="sh-cat-layout sh-cat-grid max-w-[1320px] mx-auto">
+      <div className="grid grid-cols-[288px_1fr] max-w-[1320px] mx-auto min-h-[800px]">
         <CatalogSidebar />
         <div className="px-8 py-8">
           <Suspense fallback={<ListingGridSkeleton />}>

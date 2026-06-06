@@ -27,12 +27,12 @@ export function AmenitiesList({ amenities }: AmenitiesListProps) {
   return (
     <div>
       <h3 className="sh-block-title">Що пропонує житло</h3>
-      <div className="sh-amen-list">
+      <div className="grid grid-cols-2 gap-3.5 mb-6">
         {amenities.map((amenity) => {
           const key = amenity.toLowerCase().replace(/\s+/g, "");
           const entry = AMENITY_LABELS[key];
           return (
-            <div key={amenity} className="sh-amen-item">
+            <div key={amenity} className="inline-flex items-center gap-3 text-[14px] text-[var(--ink-2)]">
               <span style={{ fontSize: 16, lineHeight: 1 }}>{entry?.icon ?? "✓"}</span>
               <span>{entry?.label ?? amenity}</span>
             </div>

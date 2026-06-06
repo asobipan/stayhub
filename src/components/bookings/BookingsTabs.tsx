@@ -533,7 +533,7 @@ function Empty({ tab }: { tab: TabId }) {
   const c = EMPTY_COPY[tab];
   return (
     <div className="flex flex-col items-center text-center py-20 px-6 max-w-md mx-auto gap-4">
-      <p className="sh-eyebrow-text">{c.eyebrow}</p>
+      <p className="font-mono-sh text-[11px] uppercase tracking-[0.08em] text-[var(--sh-muted)] mb-2">{c.eyebrow}</p>
       <h3 className="font-serif text-2xl leading-snug" style={{ color: "var(--ink)" }}>{c.title}</h3>
       <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{c.sub}</p>
       <Link href="/listings" className="sh-btn sh-btn-primary mt-2">
@@ -570,7 +570,7 @@ export function BookingsTabs({ bookings }: { bookings: BookingItem[] }) {
     <>
       {/* ── Head with stats ───────────────────────────── */}
       <section style={{ background: "var(--surface)", borderBottom: "1px solid var(--line)" }}>
-        <div className="sh-container">
+        <div className="max-w-[1320px] mx-auto px-8">
           {/* Crumbs */}
           <div className="flex items-center gap-2 pt-5 mb-7 font-mono text-[11px]" style={{ color: "var(--sh-muted)" }}>
             <Link href="/" className="flex items-center gap-1 transition-colors hover:text-[var(--ink)]">
@@ -645,7 +645,7 @@ export function BookingsTabs({ bookings }: { bookings: BookingItem[] }) {
           borderColor: "var(--line)",
         }}
       >
-        <div className="sh-container">
+        <div className="max-w-[1320px] mx-auto px-8">
           <div className="flex items-stretch gap-1 py-2">
             {TABS.map((t) => (
               <button
@@ -686,7 +686,7 @@ export function BookingsTabs({ bookings }: { bookings: BookingItem[] }) {
 
       {/* ── List ──────────────────────────────────────── */}
       <section className="py-8 pb-20">
-        <div className="sh-container">
+        <div className="max-w-[1320px] mx-auto px-8">
           {visible.length === 0 ? (
             <Empty tab={tab} />
           ) : (

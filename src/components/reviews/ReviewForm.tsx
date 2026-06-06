@@ -11,7 +11,11 @@ interface ReviewFormProps {
   onClose: () => void;
 }
 
-export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps) {
+export function ReviewForm({
+  bookingId,
+  listingTitle,
+  onClose,
+}: ReviewFormProps) {
   const router = useRouter();
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
@@ -74,11 +78,15 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
           boxShadow: "0 32px 80px rgba(30,27,75,0.25)",
         }}
       >
-        {/* Indigo top stripe */}
-        <div style={{ height: 4, background: "linear-gradient(90deg, #1E1B4B 0%, #312E81 60%, #F59E0B 100%)" }} />
+        <div
+          style={{
+            height: 4,
+            background:
+              "linear-gradient(90deg, #1E1B4B 0%, #312E81 60%, #F59E0B 100%)",
+          }}
+        />
 
         <div className="p-8">
-          {/* Close */}
           <button
             onClick={onClose}
             className="absolute top-6 right-6 w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[#F5F4F0]"
@@ -87,7 +95,6 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
             <X className="w-4 h-4" />
           </button>
 
-          {/* Heading */}
           <p className="section-eyebrow mb-2">Ваш досвід</p>
           <h2
             className="text-2xl font-semibold mb-1 leading-tight pr-8"
@@ -99,9 +106,11 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
             {listingTitle}
           </p>
 
-          {/* Stars */}
           <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "#44403C" }}>
+            <p
+              className="text-xs font-semibold uppercase tracking-wider mb-4"
+              style={{ color: "#44403C" }}
+            >
               Оцінка
             </p>
             <div className="flex items-center gap-2">
@@ -119,7 +128,10 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
                     style={{
                       fill: s <= displayed ? "#F59E0B" : "transparent",
                       color: s <= displayed ? "#F59E0B" : "#D6D3D1",
-                      filter: s <= displayed ? "drop-shadow(0 2px 6px rgba(245,158,11,0.4))" : "none",
+                      filter:
+                        s <= displayed
+                          ? "drop-shadow(0 2px 6px rgba(245,158,11,0.4))"
+                          : "none",
                       transition: "all 0.15s ease",
                     }}
                   />
@@ -128,7 +140,10 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
               {displayed > 0 && (
                 <span
                   className="ml-3 text-sm font-medium"
-                  style={{ color: "#F59E0B", fontFamily: "var(--font-heading)" }}
+                  style={{
+                    color: "#F59E0B",
+                    fontFamily: "var(--font-heading)",
+                  }}
                 >
                   {labels[displayed]}
                 </span>
@@ -136,7 +151,6 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
             </div>
           </div>
 
-          {/* Comment */}
           <div className="mb-8">
             <label
               className="block text-xs font-semibold uppercase tracking-wider mb-3"
@@ -159,12 +173,14 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
               onFocus={(e) => (e.target.style.borderColor = "#312E81")}
               onBlur={(e) => (e.target.style.borderColor = "#E7E5E0")}
             />
-            <p className="text-xs mt-1.5 text-right" style={{ color: "#A8A29E" }}>
+            <p
+              className="text-xs mt-1.5 text-right"
+              style={{ color: "#A8A29E" }}
+            >
               {comment.length} символів
             </p>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3">
             <button
               onClick={onClose}
@@ -178,9 +194,13 @@ export function ReviewForm({ bookingId, listingTitle, onClose }: ReviewFormProps
               disabled={isLoading || !rating}
               className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-200"
               style={{
-                background: !rating || isLoading ? "rgba(30,27,75,0.4)" : "#1E1B4B",
+                background:
+                  !rating || isLoading ? "rgba(30,27,75,0.4)" : "#1E1B4B",
                 color: "#fff",
-                boxShadow: !rating || isLoading ? "none" : "0 4px 16px rgba(30,27,75,0.25)",
+                boxShadow:
+                  !rating || isLoading
+                    ? "none"
+                    : "0 4px 16px rgba(30,27,75,0.25)",
               }}
             >
               {isLoading ? "Відправка..." : "Опублікувати"}

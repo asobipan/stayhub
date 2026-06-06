@@ -34,7 +34,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
         {/* Main image */}
         <div className="sh-gallery-main" onClick={() => setLightboxIndex(0)} style={{ cursor: "pointer" }}>
           <Image src={main} alt={title} fill style={{ objectFit: "cover" }} />
-          <div className="sh-gallery-counter">{images.length} фото</div>
+          <div className="absolute bottom-4 right-4 px-2.5 py-[5px] bg-black/45 text-white rounded-full text-[12px] font-mono-sh pointer-events-none">{images.length} фото</div>
         </div>
 
         {/* Side thumbnails */}
