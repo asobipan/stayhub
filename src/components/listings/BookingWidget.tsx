@@ -249,7 +249,7 @@ export function BookingWidget({
         </p>
 
         {nights > 0 && (
-          <ul className="list-none p-0 m-0 text-[13.5px]">
+          <ul className="sh-booking-breakdown">
             <li>
               <span>
                 <u>${price}</u> × {nights}{" "}

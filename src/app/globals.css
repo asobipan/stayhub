@@ -497,6 +497,30 @@
 }
 
 /* Booking widget */
+.sh-booking-breakdown {
+  list-style: none;
+  font-size: 13.5px;
+  margin: 0;
+  padding: 0;
+}
+.sh-booking-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.sh-booking-breakdown li:first-child {
+  border-top: none;
+}
+.sh-booking-breakdown li u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--line-2);
+}
+.sh-booking-total {
+  font-weight: 600;
+  color: var(--ink) !important;
+}
 .sh-booking {
   padding: 24px;
   background: var(--surface);
@@ -576,12 +600,12 @@
 .sh-search-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 12px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 999px;
   height: 52px;
-  padding: 6px;
+  padding: 6px 6px 6px 16px;
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);

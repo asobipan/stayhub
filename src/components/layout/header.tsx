@@ -50,7 +50,7 @@ export async function Header() {
           </Link>
 
           <Link
-            href="/bookings"
+            href="/saved"
             className="flex items-center justify-center w-9 h-9 rounded-full text-[var(--ink-2)] no-underline transition-colors hover:bg-[var(--bg-alt)] hover:text-[var(--ink)]"
             title="Збережені"
           >
